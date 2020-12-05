@@ -1,6 +1,10 @@
 import java.net.URL;
 
 /**
+ * This class aims to ensure that the URLs that
+ * are found during the crawl operation are manipulated
+ * along with the depth at which they are found.
+ *
  * @author Ciobanu Cosmin-Marian
  */
 
@@ -9,6 +13,11 @@ public class URLString {
     private URL urlString; // contains website specific link
     private int depth; // represents the depth in the file system
 
+    /**
+     * URLString class constructor
+     * @param urlString The link we want to save
+     * @param depth The position in the File System of this link
+     */
     public URLString(URL urlString, int depth) {
         this.urlString = urlString;
         this.depth = depth;
