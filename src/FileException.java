@@ -8,13 +8,13 @@
 public class FileException extends CrawlException{
     /**
      * FileException class constructor which call base class
-     * constructor {@link CrawlException#CrawlException(String, errorCode)}
+     * constructor {@link CrawlException#CrawlException(String, ErrorCode)}
      * @param errMessage The error message is specific to the file
      *                   errors that occurred.
      * @param errCode The error code is specific to the file errors
      *                that occurred.
      */
-    public FileException(String errMessage, errorCode errCode) {
+    public FileException(String errMessage, ErrorCode errCode) {
         super(errMessage, errCode); // Call base class constructor
     }
 

@@ -1,16 +1,4 @@
 /**
- * Enum saves possible types of errors.
- * It is used to be able to determine the flow
- * of program further depending on the type of error.
- * @author Andrei Brinzea
- */
-enum errorCode {
-    WARN,
-    ERR,
-    FATAL
-}
-
-/**
  * Abstract Class that represents the base class used in exception
  * mechanism.
  * Extends the functionality of the <i>Exception</i> class from
@@ -20,7 +8,7 @@ enum errorCode {
  */
 public abstract class CrawlException extends Exception {
     /** Error code that appears */
-    protected errorCode errCode;
+    protected ErrorCode errCode;
 
     /**
      * CrawlException class constructor
@@ -29,7 +17,7 @@ public abstract class CrawlException extends Exception {
      * @param errCode The error code is specific to the errors that
      *                occurred.
      */
-    public CrawlException(String errMessage, errorCode errCode) {
+    public CrawlException(String errMessage, ErrorCode errCode) {
         this.errCode = errCode;
 
         // TODO: Write exception message in log file

@@ -8,13 +8,13 @@
 public class UnknownException extends CrawlException{
     /**
      * UnknownException class constructor which call base class
-     * constructor {@link CrawlException#CrawlException(String, errorCode)}
+     * constructor {@link CrawlException#CrawlException(String, ErrorCode)}
      * @param errMessage The error message is specific to the
      *                   unknown errors that occurred.
      * @param errCode The error code is specific to the unknown
      *                errors that occurred.
      */
-    public UnknownException(String errMessage, errorCode errCode) {
+    public UnknownException(String errMessage, ErrorCode errCode) {
         super(errMessage, errCode); // Call base class constructor
     }
 
