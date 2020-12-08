@@ -1,4 +1,6 @@
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.*;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -7,22 +9,49 @@ public class URLParser {
 
     boolean validateURL(String url){
 
-        String urlRegex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        String urlRegex;
+        urlRegex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         Pattern urlPattern = Pattern.compile(urlRegex);
         Matcher urlMatcher = urlPattern.matcher(url);
 
         String testUrl = urlMatcher.group(1);
 
-        if(url.equalsIgnoreCase(testUrl))
-            return true;
-        return false;
+        return url.equalsIgnoreCase(testUrl);
     }
 
-    void parse(File urlFile){
+    public void parse(File urlFile) {
+        StackManager stackManager = StackManager.getInstance();
+        try {
+            Scanner reader = new Scanner(urlFile);
+
+
+            while (reader.hasNextLine()) {
+                String line = reader.nextLine();
+
+                if (validateURL(line)) {
+                    try {
+                        URL url = new URL(line);
+                        URLString urlString = new URLString(url, 0);
+
+                        stackManager.PushURL(urlString);
+                    } catch (MalformedURLException e) {
+                        //Logger.log(Ignored line);
+                    }
+                } else {
+                    //Logger.log(Ignored line);
+                }
+
+            }
+            reader.close();
+        }
+        catch(FileNotFoundException ee)
+        {
+            //Logger.log(Fatal, file not found)
+        }
 
     }
 
-    void parse(String urlString){
+    public void parse(String urlString){
 
     }
 }
