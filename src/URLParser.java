@@ -32,8 +32,8 @@ public class URLParser {
                     try {
                         URL url = new URL(line);
                         URLString urlString = new URLString(url, 0);
-
                         stackManager.PushURL(urlString);
+                        //Logger.log(Pushed line);
                     } catch (MalformedURLException e) {
                         //Logger.log(Ignored line);
                     }
@@ -52,6 +52,23 @@ public class URLParser {
     }
 
     public void parse(String urlString){
+        StackManager stackManager = StackManager.getInstance();
+
+        for( String line: urlString.split(","))
+        {
+            if (validateURL(line)) {
+                try {
+                    URL url = new URL(line);
+                    URLString urlStr = new URLString(url, 0);
+                    stackManager.PushURL(urlStr);
+                    //logger.log(Pushed line);
+                } catch (MalformedURLException e) {
+                    //Logger.log(Ignored line);
+                }
+            } else {
+                //Logger.log(Ignored line);
+            }
+        }
 
     }
 }
