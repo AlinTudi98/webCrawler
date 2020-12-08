@@ -14,7 +14,7 @@ public class URLParser {
         Matcher urlMatcher = urlPattern.matcher(url);
 
         if(urlMatcher.find()){
-            String testUrl = urlMatcher.group(1);
+            String testUrl = urlMatcher.group(0);
             if(url.equalsIgnoreCase(testUrl))
                 return true;
             return false;
