@@ -91,6 +91,13 @@ public class Robot {
         return baseUrlOfRobot;
     }
 
+    /**
+     *
+     * @return return crawlDelay specific for the current site
+     *         it can be 0 if the current site doesn't have robots.txt file
+     *         or in this file is not specified Crawl Delay
+     */
+
     public int getCrawlDelay() {
         return crawlDelay;
     }
