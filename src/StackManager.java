@@ -7,6 +7,7 @@ public class StackManager {
     private Stack<URLString> urlStack;
     private ArrayList<Robot> robotsList;
     private final Object lock = new Object();
+
     private StackManager(){
         urlStack = new Stack<URLString>();
         robotsList = new ArrayList<Robot>();
@@ -53,11 +54,31 @@ public class StackManager {
     }
 
     public void addRobot(URLString url){
+        try {
 
+            Robot newRobotToAdd = new Robot(url.getUrlString());
+
+            synchronized (lock){
+                for ( Robot iterator : robotsList){
+                    if (iterator.getbaseUrlOfRobot().equals(url.getUrlString())){
+                        return;
+                    }
+                }
+                robotsList.add(newRobotToAdd);
+            }
+        }catch (MalformedURLException ignored){
+
+        }
     }
 
     public int getDelayForRobot(URLString url){
-        return 0;
+
+        for ( Robot iterator : robotsList ){
+            if(iterator.getbaseUrlOfRobot().equals(url.getUrlString())){
+                return iterator.getCrawlDelay();
+            }
         }
 
+        return 0;
+    }
 }
