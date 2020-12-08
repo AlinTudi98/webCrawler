@@ -9,14 +9,17 @@ public class URLParser {
 
     boolean validateURL(String url){
 
-        String urlRegex;
-        urlRegex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        String urlRegex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
         Pattern urlPattern = Pattern.compile(urlRegex);
         Matcher urlMatcher = urlPattern.matcher(url);
 
-        String testUrl = urlMatcher.group(1);
-
-        return url.equalsIgnoreCase(testUrl);
+        if(urlMatcher.find()){
+            String testUrl = urlMatcher.group(1);
+            if(url.equalsIgnoreCase(testUrl))
+                return true;
+            return false;
+        }
+        return false;
     }
 
     public void parse(File urlFile) {
