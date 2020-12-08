@@ -11,10 +11,12 @@ public class URLParser {
         Pattern urlPattern = Pattern.compile(urlRegex);
         Matcher urlMatcher = urlPattern.matcher(url);
 
-        String testUrl = urlMatcher.group(1);
-
-        if(url.equalsIgnoreCase(testUrl))
-            return true;
+        if(urlMatcher.find()){
+            String testUrl = urlMatcher.group(1);
+            if(url.equalsIgnoreCase(testUrl))
+                return true;
+            return false;
+        }
         return false;
     }
 
