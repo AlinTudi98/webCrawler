@@ -1,3 +1,4 @@
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -6,7 +7,10 @@ public class StackManager {
     private Stack<URLString> urlStack;
     private ArrayList<Robot> robotsList;
     private final Object lock = new Object();
-    private StackManager(){ ; }
+    private StackManager(){
+        urlStack = new Stack<URLString>();
+        robotsList = new ArrayList<Robot>();
+    }
 
     public static StackManager getInstance(){
         if(stackmanager_instance == null){
@@ -16,25 +20,44 @@ public class StackManager {
     }
 
     public void PushURL(URLString url){
+
         synchronized (lock){
 
+            boolean availability=true;
+            if (!robotsList.isEmpty()) {
+                for ( Robot iterator : robotsList ) {
+                    if (!iterator.verifyURL(url)) {
+                        availability = false;
+                        break;
+                    }
+                }
+            }
+            if (availability){
+                urlStack.push(url);
+            }
         }
     }
 
     public URLString PopURL(){
-        synchronized (lock){
 
+        URLString firstElement;
+
+        if (urlStack.empty()){
+            return null;
         }
-        return null;
+
+        synchronized (lock){
+            firstElement = urlStack.pop();
+            return firstElement;
+        }
     }
 
     public void addRobot(URLString url){
-        synchronized (lock){
 
-        }
     }
 
     public int getDelayForRobot(URLString url){
         return 0;
-    }
+        }
+
 }
