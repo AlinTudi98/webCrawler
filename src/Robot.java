@@ -5,7 +5,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 /**
  * This class deals with the extraction of information from
  * the "robots.txt" type files that the sites may have
@@ -33,22 +34,6 @@ public class Robot {
     private ArrayList<String> disallowUrls;
     private int crawlDelay;
 
-    /**
-     *
-     * @param Url link to be checked in the list of valid urls for download
-     * @return True if searched link is not present in list and False otherwise
-     */
-    public boolean verifyURL(String Url){
-
-        for(String element : disallowUrls){
-            if(element.equals(Url)){
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     public Robot() {
         disallowUrls = new ArrayList<String>();
         crawlDelay = 0;
@@ -71,7 +56,7 @@ public class Robot {
             BufferedReader inStream;
             String agent = "";
 
-            site = url.toString()+"/robots.txt";
+            site = url.toString()+"robots.txt";
             url = new URL(site);
             connection = url.openConnection();
             connection.connect();
@@ -81,7 +66,7 @@ public class Robot {
                 StringTokenizer token = new StringTokenizer(buffer," ");
                 while (token.hasMoreElements()){
                     String tokenLine = token.nextToken();
-                    if (tokenLine.equals("User-Agent:")) {
+                    if (tokenLine.equals("User-agent:")) {
                         if(agent.equals("*")){
                             inStream.close();
                             return;
@@ -109,4 +94,42 @@ public class Robot {
     public int getCrawlDelay() {
         return crawlDelay;
     }
+
+    /**
+     *
+     * @param Url link to be checked in the list of valid urls for download
+     * @return True if searched link is not present in list and False otherwise
+     */
+    public boolean verifyURL(URLString Url){
+        String urlToVerify = Url.getUrlString().getFile();
+        /*Verify all list with REGEXES for disallowed links*/
+        for(String element : disallowUrls){
+            String[] strArray;
+            String elem = "";
+            strArray = element.split("\\*");
+
+            if (strArray.length > 1) { // if in REGEX is none of the "\*"
+                for (int i=0;i<strArray.length;i++) {
+                    elem += strArray[i];
+                    if (elem.substring(elem.length()-1).equals("?")) { // special case for "*?" case
+                        elem += "\\*";
+                    }else {
+                        elem += "*";
+                    }
+                }
+            }else {
+                elem = strArray[0];
+            }
+            // Use REGEX from robots.txt site to verify link
+
+            Pattern pattern = Pattern.compile(elem);
+            Matcher matcher = pattern.matcher(urlToVerify);
+            if (matcher.matches()){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }
