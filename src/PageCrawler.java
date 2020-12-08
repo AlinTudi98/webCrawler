@@ -10,4 +10,24 @@ public class PageCrawler extends Thread{
         this.maxSize = size;
     }
 
+    @Override
+    public synchronized void start() {
+        super.start();
+    }
+
+    @Override
+    public void run() { }
+
+    private int getCrawlDelay() {
+        return 0;
+    }
+
+    private String parse(String content) {
+        return "";
+    }
+
+    private boolean makeFS(String finalContent) {
+        return true;
+    }
+
 }
