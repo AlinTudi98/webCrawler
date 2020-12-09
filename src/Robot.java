@@ -43,7 +43,7 @@ public class Robot {
     /**
      *
      * @param url the link for which we want to create an object for Robot
-     * @throws Exception is used for the case in which we don't have a Robots.txt file linked with our link
+     * @throws Exception is used if we don't have a Robots.txt file linked with our URL
      */
     public Robot(URL url) throws MalformedURLException{
         /* Calling the constructor because crawlDelay needs to be 0 if it is not present in robots.txt */

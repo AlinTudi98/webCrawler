@@ -99,6 +99,7 @@ public class StackManager {
     /**
      *  Will add a new Robot for one link if it is not already in list
      * @param url is the new link which might have a robots.txt file and is not already added
+     * @throws MalformedURLException if the is any invalid URL
      */
     public void addRobot(URLString url){
         try {
