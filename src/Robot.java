@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -62,7 +63,7 @@ public class Robot {
             connection.connect();
 
             inStream= new BufferedReader(new InputStreamReader(url.openStream()));
-            while ((buffer = inStream.readLine()) != null){
+            while ((buffer = inStream.readLine()) != null) {
                 StringTokenizer token = new StringTokenizer(buffer," ");
                 while (token.hasMoreElements()){
                     String tokenLine = token.nextToken();
@@ -83,7 +84,14 @@ public class Robot {
             }
             inStream.close();
         }catch (Exception exception){
-            System.out.println("Robots absent on site: " + url.toString());
+            try {
+
+                Logger.getInstance().log(LogCode.WARN, "[WARN] Robot: URL: \"" + url.toString() + "\" doesn't have robots.txt file.");
+
+            }catch(IOException e)
+            {
+                System.out.println("[FATAL]: Could not get instance of logger");
+            }
         }
     }
 

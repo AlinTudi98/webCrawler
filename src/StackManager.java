@@ -1,5 +1,7 @@
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 /**
@@ -62,15 +64,22 @@ public class StackManager {
                     }
                 }
             }
-            if (availability){ // if url link is a valid one it will be added in stack
-                urlStack.push(url);
+            try {
+                if (availability){ // if url link is a valid one it will be added in stack
+                    Logger.getInstance().log(LogCode.INFO, "[INFO] StackManager: Added URL: \"" + url + "\" to download stack.");
+                    urlStack.push(url);
+                }
+            }catch(IOException e)
+            {
+                System.out.println("[FATAL]: Could not get instance of logger");
             }
+
         }
     }
 
     /**
      *
-     * @return first URLString from stack or null if the stack is null
+     * @return first URLString from stack or throw exception if the stack is empty
      */
 
     public URLString PopURL(){
@@ -78,7 +87,7 @@ public class StackManager {
         URLString firstElement;
 
         if (urlStack.empty()){
-            return null;
+           throw new EmptyStackException();
         }
 
         synchronized (lock){
@@ -94,18 +103,27 @@ public class StackManager {
     public void addRobot(URLString url){
         try {
 
-            Robot newRobotToAdd = new Robot(url.getUrlString());
+            try {
 
-            synchronized (lock){
-                for ( Robot iterator : robotsList){
-                    if (iterator.getbaseUrlOfRobot().equals(url.getUrlString())){
-                        return;
+                Robot newRobotToAdd = new Robot(url.getUrlString());
+
+                synchronized (lock) {
+                    for ( Robot iterator : robotsList ) {
+                        if (iterator.getbaseUrlOfRobot().equals(url.getUrlString())) {
+                            return;
+                        }
                     }
+                    robotsList.add(newRobotToAdd);
+                    Logger.getInstance().log(LogCode.INFO, "[INFO] StackManager: Added URL: \"" + url.getUrlString().toString() + "\" to Robots list.");
                 }
-                robotsList.add(newRobotToAdd);
-            }
-        }catch (MalformedURLException ignored){
 
+            } catch (MalformedURLException ignored) {
+                Logger.getInstance().log(LogCode.WARN, "[WARN] StackManager: MalformedURLException thrown for line: \"" + url.getUrlString().toString() + "\". Line has been ignored.");
+            }
+
+        }catch(IOException e)
+        {
+            System.out.println("[FATAL]: Could not get instance of logger");
         }
     }
 
