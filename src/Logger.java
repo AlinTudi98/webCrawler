@@ -30,14 +30,12 @@ public class Logger {
     private static Logger loggerInstance;
     private final Object lock = new Object();
 
-    private Logger(int logLevel, FileWriter logFile)
-    {
+    private Logger(int logLevel, FileWriter logFile) {
         this.logLevel = logLevel;
         this.logFile = logFile;
     }
 
-    public static Logger getInstance(int logLevel, FileWriter logFile)
-    {
+    public static Logger getInstance(int logLevel, FileWriter logFile) {
         if(loggerInstance == null) {
             loggerInstance = new Logger(logLevel, logFile);
         }
@@ -45,8 +43,7 @@ public class Logger {
         return loggerInstance;
     }
 
-    public static Logger getInstance() throws IOException
-    {
+    public static Logger getInstance() throws IOException {
         FileWriter fileWriter = new FileWriter("log.txt");
 
         if(loggerInstance == null) {
@@ -56,15 +53,13 @@ public class Logger {
         return loggerInstance;
     }
 
-    private void writeToFile(String message)
-    {
+    private void writeToFile(String message) {
         //Helper function to prevent code duplication
-        try{
-            synchronized (lock){
+        try {
+            synchronized (lock) {
                 logFile.write(message);
             }
-        } catch(IOException exp)
-        {
+        } catch(IOException exp) {
             System.out.println("Logger has encountered an error while writing to file!\n");
         }
     }
@@ -75,14 +70,13 @@ public class Logger {
      * @param message the error message sent to be logged
      */
 
-    public void log(LogCode code, String message)
-    {
+    public void log(LogCode code, String message) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         String timeStamp = "[ "+formatter.format(date)+" ]";
         String errString = timeStamp + " " + code.name() + ": " + message + "\n";
         if(logLevel == 0){
-            if(code == LogCode.FATAL){
+            if(code == LogCode.FATAL) {
                 this.writeToFile(errString);
             }
         } else if(logLevel == 1) {
@@ -94,7 +88,7 @@ public class Logger {
                 this.writeToFile(errString);
             }
         } else if(logLevel == 3) {
-            if (code == LogCode.FATAL || code == LogCode.ERR || code == LogCode.WARN || code == LogCode.INFO){
+            if (code == LogCode.FATAL || code == LogCode.ERR || code == LogCode.WARN || code == LogCode.INFO) {
                 this.writeToFile(errString);
             }
         }
