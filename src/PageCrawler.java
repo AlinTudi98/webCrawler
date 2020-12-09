@@ -1,8 +1,12 @@
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class performs the functionalities of downloading a web page,
@@ -193,6 +197,40 @@ public class PageCrawler extends Thread{
         }
 
         return defaultDelay;
+    }
+
+    private String changeURLs(String text) throws MalformedURLException {
+        String newContain = text;
+
+        String urlPattern = "\\b(https?://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
+        Pattern pattern = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(text);
+
+        while(matcher.find()) {
+
+            String baseStr = matcher.group();
+            StringTokenizer token = new StringTokenizer(baseStr,"#?");
+            String priorityStr;
+
+            if (token.hasMoreElements()) {
+                priorityStr = token.nextToken();
+            }else {
+                priorityStr = baseStr;
+            }
+
+            URL currentUrl = new URL(priorityStr);
+            String portionToChange = currentUrl.getProtocol() + "://" + currentUrl.getHost() + "/";
+
+            if (portionToChange != currUrl.getUrlString().toString()){
+
+                StackManager.getInstance().addRobot(new URLString(new URL(portionToChange),currUrl.getDepth()));
+            }
+            String replacedStr = priorityStr.replace(portionToChange,Config.getInstance().rootDir);
+
+            StackManager.getInstance().PushURL(new URLString(new URL(priorityStr),currUrl.getDepth()));
+            newContain = newContain.replace(baseStr,replacedStr);
+        }
+        return newContain;
     }
 
     private String parse(String content) {
