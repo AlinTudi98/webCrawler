@@ -26,12 +26,6 @@ public class StackManager {
     private ArrayList<Robot> robotsList;
     private final Object lock = new Object();
 
-  private StackManager(){
-        urlStack = new Stack<URLString>();
-        robotsList = new ArrayList<Robot>();
-    }
-
-
     //private constructor requested by Singleton pattern
     private StackManager(){
 
