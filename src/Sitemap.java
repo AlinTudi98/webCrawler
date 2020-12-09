@@ -54,12 +54,10 @@ public class Sitemap {
      *         in the parent path
      */
 
-    private int getTabsNumber(String parent){
+    private int getTabsNumber(String parent) {
         int tabNum = 1; //only the root folder is displayed on the first level
-        for(int i = 0; i<parent.length(); i++)
-        {
-            if(parent.charAt(i) == '\\' || parent.charAt(i) == '/') //Either Unix or Windows format
-            {
+        for(int i = 0; i<parent.length(); i++) {
+            if(parent.charAt(i) == '\\' || parent.charAt(i) == '/') { //Either Unix or Windows format
                 tabNum++;
             }
         }
@@ -116,7 +114,7 @@ public class Sitemap {
                             writeToFile(fileWriter, createTaber(getTabsNumber(filePath.getParent().toString()))
                                         +filePath.getFileName()+"/\n");
                         }
-                        else{
+                        else {
                             writeToFile(fileWriter, filePath.getFileName()+"\n");
                         }
 
@@ -124,11 +122,11 @@ public class Sitemap {
                             listFilesInDirectory(filePath.toString(),
                                     getTabsNumber(filePath.getParent().toString())+1, fileWriter);
                         }
-                        else{
+                        else {
                             listFilesInDirectory(filePath.toString(),1, fileWriter);
                         }
 
-                    }catch (IOException e){
+                    }catch (IOException e) {
                         try {
                             Logger.getInstance().log(LogCode.FATAL,
                                     "Sitemap was unable to write to output file!\n");
