@@ -1,0 +1,9 @@
+numThreads = 1
+delay = 1
+rootDir = dir
+logLevel = 1
+ignoreRobots = 1
+logFilename = log.txt
+maxDepth = 1
+dSizeLimit = 1
+dTypes = pdf docx doc

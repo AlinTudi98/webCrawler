@@ -70,14 +70,12 @@ public class Config {
         } catch (FileException | FileNotFoundException e){
             System.out.println(e.getMessage());
         }
-
-
     }
 
-    public static Config getInstance(String filename)
+    public static Config getInstance(String ... filename)
     {
         if(ConfigInstance == null) {
-            ConfigInstance = new Config(filename);
+            ConfigInstance = new Config(filename[0]);
         }
         return ConfigInstance;
     }
