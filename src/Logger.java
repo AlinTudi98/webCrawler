@@ -22,11 +22,13 @@ public class Logger {
      *           4 - logs information from crawler running process.
      * logFile: the file to which the information is written
      * loggerInstance: Logger is a singleton class
+     * lock: used for synchronization
      */
 
     private final int logLevel;
     private final FileWriter logFile;
     private static Logger loggerInstance;
+    private final Object lock = new Object();
 
     private Logger(int logLevel, FileWriter logFile)
     {
@@ -43,11 +45,24 @@ public class Logger {
         return loggerInstance;
     }
 
+    public static Logger getInstance() throws IOException
+    {
+        FileWriter fileWriter = new FileWriter("log.txt");
+
+        if(loggerInstance == null) {
+            loggerInstance = new Logger(4, fileWriter);
+        }
+
+        return loggerInstance;
+    }
+
     private void writeToFile(String message)
     {
         //Helper function to prevent code duplication
         try{
-            logFile.write(message);
+            synchronized (lock){
+                logFile.write(message);
+            }
         } catch(IOException exp)
         {
             System.out.println("Logger has encountered an error while writing to file!\n");
