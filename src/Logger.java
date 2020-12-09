@@ -27,6 +27,7 @@ public class Logger {
     private final int logLevel;
     private final FileWriter logFile;
     private static Logger loggerInstance;
+    private final Object lock = new Object();
 
     private Logger(int logLevel, FileWriter logFile)
     {
@@ -43,11 +44,23 @@ public class Logger {
         return loggerInstance;
     }
 
+    /**
+     *
+     * Used if file was already given
+     */
+
+    public static Logger getInstance()
+    {
+        return loggerInstance;
+    }
+
     private void writeToFile(String message)
     {
         //Helper function to prevent code duplication
         try{
-            logFile.write(message);
+            synchronized (lock) {
+                logFile.write(message);
+            }
         } catch(IOException exp)
         {
             System.out.println("Logger has encountered an error while writing to file!\n");
