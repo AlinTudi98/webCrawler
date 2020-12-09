@@ -24,19 +24,14 @@ public abstract class CrawlException extends Exception {
         super(errMessage);
         this.logCode = _logCode;
 
-        //Log level
-        int logLevel = Config.getInstance().logLevel;
         try {
 
-            //File for log
-            FileWriter fileForLog = new FileWriter(Config.getInstance().logFilename);
-
-            Logger.getInstance(logLevel, fileForLog).log(this.logCode, errMessage);
-
+            //Log message error in file
+            Logger.getInstance().log(this.logCode, errMessage);
         } catch (IOException e) {
 
             //Print error in console
-            System.out.println("Error:" + Config.getInstance().logFilename + " can't be open for log!");
+            System.out.println("Error log file: Can't be open for log errors!");
         }
     }
 

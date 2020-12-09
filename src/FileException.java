@@ -19,14 +19,21 @@ public class FileException extends CrawlException{
     }
 
     /**
-     * Method for displaying specific file error message and log
-     * code that occurred.
+     * Method for displaying specific file error message
+     * and <i>FATAL</i> log code that occurred.
      * Override the abstract function
      * {@link CrawlException#printException()} from base class.
      */
     @Override
     void printException() {
-        System.err.println("FILE_ERROR: " + this.getMessage()
-                + " with code " + this.logCode);
+
+        /*
+         * Check if log code is FATAL, only in that case,
+         * message and log code will be printed in the console.
+         */
+        if (this.logCode == LogCode.FATAL) {
+            System.err.println("FILE_ERROR: " + this.getMessage()
+                                + " with code " + this.logCode);
+        }
     }
 }
