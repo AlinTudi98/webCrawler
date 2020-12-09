@@ -82,6 +82,22 @@ public class Config {
         return ConfigInstance;
     }
 
+    public void printMembers(){
+        System.out.println("Parametri de configurare sunt:\n");
+        System.out.println(("numThreads = " + numThreads + "\n" +
+                "delay = " + delay + "\n" +
+                "rootDir = " + rootDir + "\n" +
+                "logLevel = " + logLevel + "\n" +
+                "ignoreRobots " + ignoreRobots + "\n" +
+                "logFilename " + logFilename + "\n" +
+                "maxDepth = " + maxDepth + "\n" +
+                "dSizeLimit " + dSizeLimit + "\n" +
+                "dTypes = "));
+        for (int i=0;i<tokens.length;i++){
+            System.out.println(dTypes[i] + " ");
+        }
+    }
+
     public void help(){
         System.out.println("Fisierul de configurare are urmatoarea structura:\n");
         System.out.println(("numThreads = <nr>\n" +
