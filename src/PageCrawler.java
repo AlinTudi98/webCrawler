@@ -76,19 +76,19 @@ public class PageCrawler extends Thread{
                     pageContent = bytesBuffer.toString(StandardCharsets.UTF_8);
                     bytesBuffer.close();
 
-                    newPageContent = this.parse(pageContent); //achieve modified Page
+                    newPageContent = this.parse(pageContent); //Achieve modified Page
                     if (!makeFS(newPageContent)) {
                         throw new FileException("Error saving page", ErrorCode.ERR);
                     }
 
                 } catch (InterruptedException | UnknownException | IOException e) {
-                    e.printStackTrace(); //Log error
+                    e.printStackTrace(); //TODO:Log in file
                 } catch (ConnectionException | FileException e) {
                     e.printException();
                 }
             }
         } catch(EmptyStackException e) {
-            e.printStackTrace(); //Log error
+            e.printStackTrace(); //TODO:Log in file
         }
 
     }
