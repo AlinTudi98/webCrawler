@@ -108,30 +108,17 @@ public class Robot {
      * @return True if searched link is not present in list and False otherwise
      */
     public boolean verifyURL(URLString Url){
+        //Extract from URL the relative link
         String urlToVerify = Url.getUrlString().getFile();
-        /*Verify all list with REGEXES for disallowed links*/
-        for(String element : disallowUrls){
-            String[] strArray;
-            String elem = "";
-            strArray = element.split("\\*");
 
-            if (strArray.length > 1) { // if in REGEX is none of the "\*"
-                for (int i=0;i<strArray.length;i++) {
-                    elem += strArray[i];
-                    if (elem.substring(elem.length()-1).equals("?")) { // special case for "*?" case
-                        elem += "\\*";
-                    }else {
-                        elem += "*";
-                    }
-                }
-            }else {
-                elem = strArray[0];
-            }
-            // Use REGEX from robots.txt site to verify link
+        //Verify every rule with disallow
+        for(String element : disallowUrls) {
+            String elem = element.replace("*",".*"); //change * in .* to work as a REGEX
+            elem = elem.replace("?","\\?"); //make ? /? because it should not enter in REGEX
 
             Pattern pattern = Pattern.compile(elem);
             Matcher matcher = pattern.matcher(urlToVerify);
-            if (matcher.matches()){
+            if (matcher.matches()) { // verify if changed REGEX is a match
                 return false;
             }
         }
