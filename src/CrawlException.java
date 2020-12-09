@@ -1,3 +1,6 @@
+import java.io.FileWriter;
+import java.io.IOException;
+
 /**
  * Abstract Class that represents the base class used in exception
  * mechanism.
@@ -18,10 +21,23 @@ public abstract class CrawlException extends Exception {
      *                 occurred.
      */
     public CrawlException(String errMessage, LogCode _logCode) {
+        super(errMessage);
         this.logCode = _logCode;
 
-        // TODO: Write exception message in log file
-        // TODO: Java Exception class constructor need to be called
+        //Log level
+        int logLevel = Config.getInstance().logLevel;
+        try {
+
+            //File for log
+            FileWriter fileForLog = new FileWriter(Config.getInstance().logFilename);
+
+            Logger.getInstance(logLevel, fileForLog).log(this.logCode, errMessage);
+
+        } catch (IOException e) {
+
+            //Print error in console
+            System.out.println("Error:" + Config.getInstance().logFilename + " can't be open for log!");
+        }
     }
 
     /**
