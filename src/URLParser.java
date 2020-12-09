@@ -27,7 +27,7 @@ public class URLParser {
         try {
             Logger logger = Logger.getInstance();
             try {
-
+                logger.log(LogCode.INFO,"[INFO] URLParser: Successfully started URLParser class for file " + urlFile.getPath());
                 StackManager stackManager = StackManager.getInstance();
                 Scanner reader = new Scanner(urlFile);
 
@@ -64,23 +64,28 @@ public class URLParser {
     }
 
     public void parse(String urlString){
-        StackManager stackManager = StackManager.getInstance();
+        try {
+            Logger logger = Logger.getInstance();
+            logger.log(LogCode.INFO,"[INFO] URLParser: Successfully started URLParser class for string " + urlString);
+            StackManager stackManager = StackManager.getInstance();
 
-        for( String line: urlString.split(","))
-        {
-            if (validateURL(line)) {
-                try {
-                    URL url = new URL(line);
-                    URLString urlStr = new URLString(url, 0);
-                    stackManager.PushURL(urlStr);
-                    //logger.log(Pushed line);
-                } catch (MalformedURLException e) {
-                    //Logger.log(Ignored line);
+            for (String line : urlString.split(",")) {
+                if (validateURL(line)) {
+                    try {
+                        URL url = new URL(line);
+                        URLString urlStr = new URLString(url, 0);
+                        stackManager.PushURL(urlStr);
+                        logger.log(LogCode.INFO, "[INFO] URLParser: Added URL: \"" + line + "\" to download stack.");
+                    } catch (MalformedURLException e) {
+                        logger.log(LogCode.WARN, "[WARN] URLParser: MalformedURLException thrown for string: \"" + line + "\". String has been ignored.");
+                    }
+                } else {
+                    logger.log(LogCode.WARN, "[WARN] URLParser: Ignored string: \"" + line + "\". Not a valid URL.");
                 }
-            } else {
-                //Logger.log(Ignored line);
             }
         }
-
+        catch(IOException e) {
+            System.out.println("[FATAL]: Could not get instance of logger");
+        }
     }
 }
