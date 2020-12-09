@@ -13,8 +13,6 @@ public class Config {
     private static Config ConfigInstance;
 
     private Config(String filename){
-
-        
     }
 
     public Config getInstance(String filename)
