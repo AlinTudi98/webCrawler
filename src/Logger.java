@@ -34,7 +34,7 @@ public class Logger {
         this.logFile = logFile;
     }
 
-    public Logger getInstance(int logLevel, FileWriter logFile)
+    public static Logger getInstance(int logLevel, FileWriter logFile)
     {
         if(loggerInstance == null) {
             loggerInstance = new Logger(logLevel, logFile);
