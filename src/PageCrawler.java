@@ -42,18 +42,18 @@ public class PageCrawler extends Thread{
                     Thread.sleep(this.getCrawlDelay()); //Apply crawl delay
 
                     if (maxDepth < currUrl.getDepth()) { //Check maxDepth
-                        throw new UnknownException("Maximum depth exceeded", ErrorCode.WARN);
+                        throw new UnknownException("Maximum depth exceeded", LogCode.WARN);
                     }
 
                     httpConn = (HttpURLConnection) this.currUrl.getUrlString().openConnection();
                     responseCode = httpConn.getResponseCode();
                     if (responseCode != HttpURLConnection.HTTP_OK) {
-                        throw new ConnectionException("Connection unavailable", ErrorCode.ERR);
+                        throw new ConnectionException("Connection unavailable", LogCode.ERR);
                     }
 
                     contentLength = httpConn.getContentLengthLong();
                     if (contentLength > 0 && contentLength > this.maxSize) {
-                        throw new UnknownException("Size exceeded for download", ErrorCode.WARN);
+                        throw new UnknownException("Size exceeded for download", LogCode.WARN);
                     }
                     inputStream = httpConn.getInputStream();
                     bytesBuffer = new ByteArrayOutputStream();
@@ -67,7 +67,7 @@ public class PageCrawler extends Thread{
                         if (totalBytesRead > this.maxSize) { //Check if max size is exceeded
                             inputStream.close();
                             bytesBuffer.close();
-                            throw new UnknownException("Size exceeded for download", ErrorCode.WARN);
+                            throw new UnknownException("Size exceeded for download", LogCode.WARN);
                         }
                     }
 
@@ -78,7 +78,7 @@ public class PageCrawler extends Thread{
 
                     newPageContent = this.parse(pageContent); //Achieve modified Page
                     if (!makeFS(newPageContent)) {
-                        throw new FileException("Error saving page", ErrorCode.ERR);
+                        throw new FileException("Error saving page", LogCode.ERR);
                     }
 
                 } catch (InterruptedException | UnknownException | IOException e) {

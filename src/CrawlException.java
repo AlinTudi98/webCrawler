@@ -7,18 +7,18 @@
  * @author Andrei Brinzea
  */
 public abstract class CrawlException extends Exception {
-    /** Error code that appears */
-    protected ErrorCode errCode;
+    /** Log code that appears */
+    protected LogCode logCode;
 
     /**
      * CrawlException class constructor
      * @param errMessage The error message is specific to the errors
      *                   that occurred.
-     * @param errCode The error code is specific to the errors that
-     *                occurred.
+     * @param _logCode The log code is specific to the errors that
+     *                 occurred.
      */
-    public CrawlException(String errMessage, ErrorCode errCode) {
-        this.errCode = errCode;
+    public CrawlException(String errMessage, LogCode _logCode) {
+        this.logCode = _logCode;
 
         // TODO: Write exception message in log file
         // TODO: Java Exception class constructor need to be called
