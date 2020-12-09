@@ -3,9 +3,26 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.lang.Integer;
 
+/**
+ * This class stores the config information used in all the program
+ * It reads the configuration file and stores the data in its members
+ *
+ * @author Andreea Avram
+ */
 
 public class Config {
-
+    /**
+     * All members are configuration parameters used by other classes
+     * numThreads - number of threads that run the program
+     * delay - the time we want to wait before starting the download process
+     * rootDir - the root directory where the elements of the pages are stored
+     * logLevel - how deep we want to log the crawlers activity
+     * ignoreRobots - 0 if we want to ignore Robots.txt, 1 otherwise
+     * logFilename - the path to the log file
+     * maxDepth - how deep we want to go through the pages to download
+     * dSizeLimit - the size limit of the documents we want to download
+     * dTypes - the types of files we want to download
+     */
     public int numThreads;
     public int delay;
     public String rootDir;
@@ -21,6 +38,12 @@ public class Config {
     final int numParams = 9;
     final String delims = "[= ]+";
     String[] tokens = new String[21];
+
+
+    /**
+     * Mapper class constructor
+     * @filename the configuration file we want to load
+     */
 
     private Config(String filename){
         try{
