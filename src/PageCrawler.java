@@ -234,7 +234,40 @@ public class PageCrawler extends Thread{
     }
 
     private String parse(String content) {
-        return "";
+        String newContain = "";
+        try {
+            newContain = changeURLs(content);
+            String baseUrl = currUrl.getUrlString().getProtocol() + "://" + currUrl.getUrlString().getHost() + "/";
+            String partialURLs = "((href)|(src)) ?= ?\"\\/[-A-Za-z0-9+&@#\\/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#\\/%=~_()|]";
+            Pattern pattern = Pattern.compile(partialURLs);
+            Matcher matcher = pattern.matcher(newContain);
+
+            while (matcher.find()) {
+                String baseStr = matcher.group();
+
+                StringTokenizer token = new StringTokenizer(baseStr,"#?");
+                String priorityStr;
+
+                if (token.hasMoreElements()) {
+                    priorityStr = token.nextToken();
+                }else {
+                    priorityStr = baseStr;
+                }
+
+                String changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?","").trim();
+                newContain = newContain.replace(changedStr,Config.getInstance().rootDir + changedStr.substring(2));
+
+                changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?\"\\/","").trim();
+                String toAddInStack = baseUrl + changedStr;
+                StackManager.getInstance().PushURL(new URLString(new URL(toAddInStack), currUrl.getDepth()+1));
+
+            }
+        }catch (MalformedURLException ignored){
+
+        }
+
+
+        return newContain;
     }
 
     /**
