@@ -1,7 +1,4 @@
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.Stack;
@@ -152,6 +149,66 @@ public class PageCrawler extends Thread{
     }
 
     private boolean makeFS(String finalContent) {
+
+        //Extract path where to save page from URL
+        String path = this.currUrl.getUrlString().getFile();
+        int position; //used for check page extension
+        String[] dirs = path.split("/"); //Store all dirs from path
+
+        //Store dirs from String[] dirs in ArrayList
+        ArrayList<String> arrayFiles = new ArrayList<String>(Arrays.asList(dirs));
+        File forCreate; //Used to create dirs for path, if don't exist
+        String rootPath = Config.getInstance().rootDir; //Used to create path from rootDir
+        FileOutputStream outputStream; //Used for write content page to file
+        boolean check_createDir;
+        int i;
+
+        //Extract position for extension for check after if exists or not
+        position = arrayFiles.get(arrayFiles.size() - 1).lastIndexOf('.');
+
+        //Check if extension for page does not exist
+        if (position < 0) {
+
+            //Add a default page "index.html" where save content of page
+            arrayFiles.add("index.html");
+
+        }
+
+        try {
+            for (i = 0; i < arrayFiles.size() - 1; i++) {
+                rootPath += '/' + arrayFiles.get(i);
+                forCreate = new File(rootPath);
+
+                if (!forCreate.exists()) {
+
+                    //create dir if doesn't exist
+                    if (!forCreate.mkdirs()) {
+                        throw new FileException("Couldn't create dir:" + rootPath + " for download page:" +
+                                currUrl.getUrlString().toString(), LogCode.ERR);
+                    }
+                }
+            }
+
+            rootPath += '/' + arrayFiles.get(arrayFiles.size() - 1);
+            Logger.getInstance().log(LogCode.INFO, "Path for " + currUrl.getUrlString().toString() +
+                                      " is valid and content can be saved there!");
+
+            outputStream = new FileOutputStream(rootPath);
+            outputStream.write(finalContent.getBytes());
+            outputStream.close();
+
+            Logger.getInstance().log(LogCode.INFO, "Content for " + currUrl.getUrlString().toString() +
+                                      " has been saved!");
+
+        } catch (FileException | IOException e) {
+
+            if (e instanceof IOException) {
+                System.out.println("[FATAL]: Could not get instance of logger");
+            }
+
+            return false;
+        }
+
         return true;
     }
 
