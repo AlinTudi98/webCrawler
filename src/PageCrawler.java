@@ -4,22 +4,61 @@ import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 import java.util.*;
 
+/**
+ * Class performs the functionalities of downloading a web page,
+ * parsing it to replace the links within it according to
+ * {@link Config#rootDir} path and saving the modified content
+ * in specific file from our file hierarchy.
+ *
+ * @author Andrei Brinzea
+ * @author Ciobanu Cosmin-Marian
+ */
+
 public class PageCrawler extends Thread{
+    /**
+     * Members of class <b>PageCrawler</b>
+     * <i>maxDepth :</i> maximum depth could have in
+     * downloaded process
+     * <i>maxSize :</i> maximum size in bytes could have
+     * downloaded content page
+     * <i>currURL :</i> store information about the current
+     * URL. Is is a {@link URLString} object.
+     */
 
     private int maxDepth;
     private long maxSize;
     private URLString currUrl;
 
+    /**
+     * <b>PageCrawler</b> class constructor
+     * @param depth maximum depth could have in download process
+     * @param size maximum size in bytes could have downloaded page
+     */
     public PageCrawler(int depth, long size) {
         this.maxDepth = depth;
         this.maxSize = size;
     }
 
+    /**
+     * Function used to start thread, which overrides
+     * <i>start</i> method from <b>Exception</b> Java class
+     */
     @Override
     public synchronized void start() {
         super.start();
     }
 
+    /**
+     * Function used to specify code what want to be executed
+     * when a PageCrawler instance call {@link PageCrawler#start()}
+     * method.
+     * This function set a Http connection with server.
+     * Before download, the page depth level is check
+     * if it is lower than {@link #maxDepth} and if it's true, than
+     * the process for download the page can continue.
+     * Also, it is checked if the size of the download content page
+     * is less than or equal to {@link #maxSize}.
+     */
     @Override
     public void run() {
         HttpURLConnection httpConn; //Wrapper for connection
@@ -112,6 +151,18 @@ public class PageCrawler extends Thread{
 
     }
 
+    /**
+     * Function tha returns the crawl delay that should be
+     * applied to crawl during the download process.
+     * If is wanted to apply crawl delay from <i>Robots.txt</i>
+     * file, than it is checked if there is a value for crawl
+     * delay and returned this valued if exists. If doesn't
+     * exist, crawl delay return the default value.
+     *
+     * @return crawl delay from <i>Robots.txt</i> if it exists
+     * and {@link Config#ignoreRobots} is not set, otherwise
+     * return default value from {@link Config#delay}
+     */
     private int getCrawlDelay(){
 
         //Default crawl delay
@@ -148,6 +199,17 @@ public class PageCrawler extends Thread{
         return "";
     }
 
+    /**
+     * Class that save the content of the page, after parsing it,
+     * in the specific file.
+     * Depending on the URL of the page, the position of the
+     * newly created file in the local files hierarchy is calculated
+     * and the respective path is created in case it does not exist.
+     *
+     * @param finalContent the final modified content of the page
+     * @return true if the page has been save with success, otherwise
+     * return false
+     */
     private boolean makeFS(String finalContent) {
 
         //Extract path where to save page from URL
