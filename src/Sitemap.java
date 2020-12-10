@@ -86,7 +86,7 @@ public class Sitemap {
                     } catch (IOException e) {
                         try {
                             Logger.getInstance().log(LogCode.FATAL,
-                                             "Sitemap was unable to write to output file!\n");
+                                             "Sitemap was unable to write to output file!");
                         } catch (IOException exp) {
                             System.out.println("Unexpected error occurred! Logger cannot be created!");
                         }
@@ -129,7 +129,7 @@ public class Sitemap {
                     }catch (IOException e) {
                         try {
                             Logger.getInstance().log(LogCode.FATAL,
-                                    "Sitemap was unable to write to output file!\n");
+                                    "Sitemap was unable to write to output file!");
                         } catch (IOException exp) {
                             System.out.println("Unexpected error occurred! Logger cannot be created!");
                         }
