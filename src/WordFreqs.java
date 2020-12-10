@@ -14,7 +14,7 @@ public class WordFreqs {
      * freq - the number of appearances of the word @word
      * priority - parameter used to obtain more accurate results
      */
-    public URL urlString;
+    public String urlString;
     public String word;
     public int freq;
     public int priority;
