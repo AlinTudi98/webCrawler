@@ -57,8 +57,17 @@ public class StackManager {
 
             boolean availability=true;
             if (!robotsList.isEmpty()) {
-                for ( Robot iterator : robotsList ) { //verify if the new link is not in the disallowed list of a Robot
+                for ( Robot iterator : robotsList ) { //verify if the new link is not in disallowed list of a Robot
                     if (!iterator.verifyURL(url)) {
+                        availability = false;
+                        break;
+                    }
+                }
+            }
+            //verify if this url is not already in Stack
+            if(!urlStack.isEmpty()) {
+                for ( URLString iterator : urlStack ) {
+                    if (url.getUrlString().equals(iterator.getUrlString())) {
                         availability = false;
                         break;
                     }
