@@ -35,60 +35,82 @@ public class PageCrawler extends Thread{
         byte[] buffer = new byte[4096]; //Buffer in which store downloaded bytes
         ByteArrayOutputStream bytesBuffer; //Buffer in which store all downloaded bytes
         InputStream inputStream; //Used for working with Http input stream
+        String urlString = this.currUrl.getUrlString().toString(); //Url string used for log
 
         try {
-            while ((currUrl = StackManager.getInstance().PopURL()) != null) {
-                try {
-                    Thread.sleep(this.getCrawlDelay()); //Apply crawl delay
+            Logger logger = Logger.getInstance();
 
-                    if (maxDepth < currUrl.getDepth()) { //Check maxDepth
-                        throw new UnknownException("Maximum depth exceeded", LogCode.WARN);
-                    }
+            try {
+                while ((currUrl = StackManager.getInstance().PopURL()) != null) {
+                    try {
+                        Thread.sleep(this.getCrawlDelay()); //Apply crawl delay
 
-                    httpConn = (HttpURLConnection) this.currUrl.getUrlString().openConnection();
-                    responseCode = httpConn.getResponseCode();
-                    if (responseCode != HttpURLConnection.HTTP_OK) {
-                        throw new ConnectionException("Connection unavailable", LogCode.ERR);
-                    }
-
-                    contentLength = httpConn.getContentLengthLong();
-                    if (contentLength > 0 && contentLength > this.maxSize) {
-                        throw new UnknownException("Size exceeded for download", LogCode.WARN);
-                    }
-                    inputStream = httpConn.getInputStream();
-                    bytesBuffer = new ByteArrayOutputStream();
-
-                    bytesRead = 0;
-                    totalBytesRead = 0;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        bytesBuffer.write(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-
-                        if (totalBytesRead > this.maxSize) { //Check if max size is exceeded
-                            inputStream.close();
-                            bytesBuffer.close();
-                            throw new UnknownException("Size exceeded for download", LogCode.WARN);
+                        if (maxDepth < currUrl.getDepth()) { //Check maxDepth
+                            throw new UnknownException("Maximum depth exceeded to page:" + urlString, LogCode.WARN);
                         }
+
+                        httpConn = (HttpURLConnection) this.currUrl.getUrlString().openConnection();
+                        responseCode = httpConn.getResponseCode();
+                        if (responseCode != HttpURLConnection.HTTP_OK) {
+                            throw new ConnectionException("Invalid connection to page:" + urlString, LogCode.ERR);
+                        }
+
+                        /*
+                         * First, it is checked if value of the content-length header
+                         * field from Http method getContentLengthLong().
+                         * But in some situations, that field is not set and return -1.
+                         * For case when return -1, will be checked when download the
+                         * page if the size is exceeded.
+                         */
+
+                        contentLength = httpConn.getContentLengthLong();
+                        if (contentLength > 0 && contentLength > this.maxSize) {
+                            throw new UnknownException("Size exceeded for download page:" + urlString, LogCode.WARN);
+                        }
+                        inputStream = httpConn.getInputStream();
+                        bytesBuffer = new ByteArrayOutputStream();
+
+                        logger.log(LogCode.INFO,"Downloading " +  urlString);
+
+                        bytesRead = 0;
+                        totalBytesRead = 0;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            bytesBuffer.write(buffer, 0, bytesRead);
+                            totalBytesRead += bytesRead;
+
+                            if (totalBytesRead > this.maxSize) { //Check if max size is exceeded
+                                inputStream.close();
+                                bytesBuffer.close();
+                                throw new UnknownException("Size exceeded for download page:" + urlString,
+                                        LogCode.WARN);
+                            }
+                        }
+
+                        inputStream.close();
+                        pageContent = bytesBuffer.toString(StandardCharsets.UTF_8);
+                        bytesBuffer.close();
+
+                        logger.log(LogCode.INFO,"Page " +  urlString + " has been downloaded!");
+
+                        newPageContent = this.parse(pageContent); //Achieve modified Page
+                        logger.log(LogCode.INFO,"Page " +  urlString + " has been parsed!");
+
+                        if (!makeFS(newPageContent)) {
+                            throw new FileException("Error saving page:" + urlString, LogCode.ERR);
+                        }
+                        logger.log(LogCode.INFO,"Page " +  urlString + " has been saved to file!");
+
+                    } catch (InterruptedException | IOException e) {
+                        logger.log(LogCode.ERR, e.getMessage());
+                    } catch (ConnectionException | FileException | UnknownException e) {
+                        e.printException();
                     }
-
-                    inputStream.close();
-
-                    pageContent = bytesBuffer.toString(StandardCharsets.UTF_8);
-                    bytesBuffer.close();
-
-                    newPageContent = this.parse(pageContent); //Achieve modified Page
-                    if (!makeFS(newPageContent)) {
-                        throw new FileException("Error saving page", LogCode.ERR);
-                    }
-
-                } catch (InterruptedException | UnknownException | IOException e) {
-                    e.printStackTrace(); //TODO:Log in file
-                } catch (ConnectionException | FileException e) {
-                    e.printException();
                 }
+            } catch (EmptyStackException e) {
+                logger.log(LogCode.INFO,"The stack with links for download is empty!");
             }
-        } catch(EmptyStackException e) {
-            e.printStackTrace(); //TODO:Log in file
+        } catch (IOException e) {
+            System.out.println("[FATAL]: Could not get instance of logger");
         }
 
     }
