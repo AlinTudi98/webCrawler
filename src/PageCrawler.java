@@ -105,7 +105,7 @@ public class PageCrawler extends Thread{
             //Check if exists crawl delay value in Robots.txt
             if (robotsDelay > 0) {
                 try {
-                    Logger.getInstance().log(LogCode.INFO, "Successfully applied crawl delay with value :"
+                    Logger.getInstance().log(LogCode.INFO, "Applied crawl delay with value :"
                                              + robotsDelay + " from robots.txt file!");
                 } catch (IOException e) {
                     System.out.println("[FATAL]: Could not get instance of logger");
@@ -116,7 +116,7 @@ public class PageCrawler extends Thread{
         }
 
         try {
-            Logger.getInstance().log(LogCode.INFO, "Successfully applied crawl delay with value :"
+            Logger.getInstance().log(LogCode.INFO, "Applied crawl delay with value :"
                                      + defaultDelay + " from configuration file!");
         } catch (IOException e) {
             System.out.println("[FATAL]: Could not get instance of logger");
