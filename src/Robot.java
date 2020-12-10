@@ -21,8 +21,8 @@ public class Robot {
     /**
      * Members of class Robot
      * baseUrlOfRobot: represents base link of this robot file, for example
-     *                 for a link like http://example.com/robots.txt the value of this field should be
-     *                 http://example.com.
+     *                 for a link like <i>http://example.com/robots.txt</i> the value of this field should be
+     *                 <i>http://example.com</i>.
      * disallowUrls: is a list with all the sites specific for this link which cannot be downloaded by
      *               our crawler.
      * crawlDelay: is a value that suggests the time that the crawler can wait maximum for a certain
@@ -41,9 +41,10 @@ public class Robot {
     }
 
     /**
-     *
+     * The Robot class constructor to check if it exists and then start
+     * creating the member variables.
      * @param url the link for which we want to create an object for Robot
-     * @throws Exception is used if we don't have a Robots.txt file linked with our URL
+     * @throws Exception is used if we don't have a <i>Robots.txt</i> file linked with our URL
      */
     public Robot(URL url) throws MalformedURLException{
         /* Calling the constructor because crawlDelay needs to be 0 if it is not present in robots.txt */
@@ -51,6 +52,12 @@ public class Robot {
         baseUrlOfRobot = url;
 
         try {
+            /**
+             * buffer: where is saved the content of <i>robots.txt</i> file
+             * connection: used to connect at our link
+             * site: the new site, with <b>robots.txt</b> path.
+             * agent: current Agent from robots.txt file for which we verify rules
+             */
             String buffer;
             URLConnection connection;
             String site;
@@ -60,24 +67,24 @@ public class Robot {
             site = url.toString()+"robots.txt";
             url = new URL(site);
             connection = url.openConnection();
-            connection.connect();
+            connection.connect(); //connect to our site, having "robots.txt" in the final
 
             inStream= new BufferedReader(new InputStreamReader(url.openStream()));
-            while ((buffer = inStream.readLine()) != null) {
-                StringTokenizer token = new StringTokenizer(buffer," ");
-                while (token.hasMoreElements()){
+            while ((buffer = inStream.readLine()) != null) { // while we still have lines to read from file
+                StringTokenizer token = new StringTokenizer(buffer," "); //take one word at a time
+                while (token.hasMoreElements()){ //while there are words to verify
                     String tokenLine = token.nextToken();
-                    if (tokenLine.equals("User-agent:")) {
-                        if(agent.equals("*")){
+                    if (tokenLine.equals("User-agent:")) { //if we have an User-Agent field
+                        if(agent.equals("*")){ //if we already read rules for "*" Agent
                             inStream.close();
-                            return;
+                            return; // reading is closed
                         }
                         agent = token.nextToken();
                     }
-                    if (tokenLine.equals("Crawl-delay:")) {
+                    if (tokenLine.equals("Crawl-delay:")) { //if we need to take crawl delay field
                         crawlDelay=Integer.parseInt(token.nextToken());
                     }
-                    if (tokenLine.equals("Disallow:") && agent.equals("*") ) {
+                    if (tokenLine.equals("Disallow:") && agent.equals("*") ) { // we want to read disallow rules only for "*" Agent
                         disallowUrls.add(token.nextToken());
                     }
                 }

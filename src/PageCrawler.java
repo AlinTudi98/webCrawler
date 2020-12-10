@@ -200,7 +200,7 @@ public class PageCrawler extends Thread{
     }
 
     /**
-     * This method deals with all links that have a full format (eg. https?://example.com/*)
+     * This method deals with all links that have a full format <b>(eg. https?://example.com/*)</b>
      * @param text is the contents of the file to be parsed
      * @return returns the received file as a parameter with the new paths in the file system
      * @throws MalformedURLException if the is any invalid URL
@@ -255,12 +255,29 @@ public class PageCrawler extends Thread{
     }
 
     /**
-     * The main method for parsing files
+     * The main method for parsing files.
+     * Here all the files required by the threads are parsed and
+     * their paths are replaced to mold to the local file system
+     * created by the utility.
+     * It must perform the respective operations unless the received
+     * file has the extension <i>".html" / ".htm"</i> or has <i>no extension<i/> at all.
+     * In the last case initial file is returned unchanged.
+     *
      * @param content is the original file which needs to be parsed
      * @return the original file with all links changed
      * @throws MalformedURLException if the is any invalid URL
      */
     private String parse(String content) {
+        // First of all verify if this file should be parsed or not
+
+        String filePath = currUrl.getUrlString().getFile(); // get file path
+        String fileName = filePath.split("/")[filePath.split("/").length-1]; //extract last element from path
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1); //get the extension of this file
+
+        if (!fileExtension.equals("html") && !fileExtension.equals(fileName) && !fileExtension.equals("htm")){ // if it has ".html" extension or has no extension
+            return content; // return the content without any change
+        }
+
         /**
          * newContain: string used as copy of the file content
          * baseUrl: extracted base URL from that one which is used by this instance of PageCrawler

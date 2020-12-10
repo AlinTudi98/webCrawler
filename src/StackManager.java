@@ -48,7 +48,10 @@ public class StackManager {
     }
 
     /**
-     *
+     * Add a URLString to urlStack, but first verify if this
+     * link is not in any disallow list of a Robot.
+     * Also it should not add the same link twice so,
+     * in addition to the operations specified above, also check urlStack.
      * @param url is the new link which needs to be added in stack
      */
     public void PushURL(URLString url){
@@ -87,8 +90,10 @@ public class StackManager {
     }
 
     /**
-     *
+     * The function which need to return last element
+     * added in urlStack.
      * @return first URLString from stack or throw exception if the stack is empty
+     * @throws EmptyStackException if the stack has no element
      */
 
     public URLString PopURL(){
@@ -106,11 +111,11 @@ public class StackManager {
     }
 
     /**
-     *  Will add a new Robot for one link if it is not already in list
+     *  Will add a new Robot for one link if it is not already in list.
      * @param url is the new link which might have a robots.txt file and is not already added
      * @throws MalformedURLException if the is any invalid URL
      */
-    public void addRobot(URLString url){
+    public void addRobot( URLString url){
         try {
 
             try {
@@ -138,9 +143,9 @@ public class StackManager {
     }
 
     /**
-     *
+     * Return the Crawl Delay specific to a <i>robots.txt</i> file.
      * @param url the URLString for which is needed Crawl Delay which could be present in a Robot
-     * @return Crawl Delay if the site for which this method is called has one or 0 otherwises
+     * @return Crawl Delay if the site for which this method is called has one or 0 otherwise
      */
     public int getDelayForRobot(URLString url){
 
