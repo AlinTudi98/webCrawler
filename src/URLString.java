@@ -9,7 +9,11 @@ import java.net.URL;
  */
 
 public class URLString {
-
+    /**
+     * Members of the class
+     * urlString is the link itself saved in a URL type variable
+     * depth represents the depth reached after parsing the files
+     */
     private URL urlString; // contains website specific link
     private int depth; // represents the depth in the file system
 

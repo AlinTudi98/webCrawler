@@ -1,8 +1,12 @@
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class performs the functionalities of downloading a web page,
@@ -195,8 +199,134 @@ public class PageCrawler extends Thread{
         return defaultDelay;
     }
 
+    /**
+     * This method deals with all links that have a full format <b>(eg. https?://example.com/*)</b>
+     * @param text is the contents of the file to be parsed
+     * @return returns the received file as a parameter with the new paths in the file system
+     * @throws MalformedURLException if the is any invalid URL
+     */
+
+    private String changeURLs(String text){
+        /**
+         * newContain is the copy of our file contain
+         * urlPattern is the pattern for any URL which is complete
+         * pattern and matcher are used for REGEX validation
+         */
+        String newContain = text;
+        String urlPattern = "\\b(https?://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
+        Pattern pattern = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(text);
+        String priorityStr="";
+        try{
+            try {
+                while(matcher.find()) { // while there are sites unchanged
+
+                    String baseStr = matcher.group();
+                    StringTokenizer token = new StringTokenizer(baseStr,"#?"); //we want to use the part of the link until "?"
+
+                    if (token.hasMoreElements()) { // if there is any "?" we take de link until it
+                        priorityStr = token.nextToken();
+                    }else { // else we take the whole link
+                        priorityStr = baseStr;
+                    }
+
+                    URL currentUrl = new URL(priorityStr);
+                    String portionToChange = currentUrl.getProtocol() + "://" + currentUrl.getHost() + "/"; //we take the part of the link which needs to be changed with path to root directory
+
+                    if (portionToChange != currUrl.getUrlString().toString()){ //if the new link is not the current one of our page
+
+                        StackManager.getInstance().addRobot(new URLString(new URL(portionToChange),currUrl.getDepth())); //we add a Robot instance if our link has robots.txt file
+                    }
+                    // current's match path is changed
+                    String replacedStr = priorityStr.replace(portionToChange,Config.getInstance().rootDir);
+
+                    // the link is added to stack
+                    StackManager.getInstance().PushURL(new URLString(new URL(priorityStr),currUrl.getDepth()));
+                    newContain = newContain.replace(baseStr,replacedStr);
+                }
+            } catch (MalformedURLException e) {
+                Logger.getInstance().log(LogCode.WARN, "[WARN] PageCrawler: MalformedURLException thrown for line: \"" + priorityStr + "\". Line has been ignored.");
+            }
+        } catch (IOException e)
+        {
+            System.out.println("[FATAL]: Could not get instance of logger");
+        }
+        return newContain;
+    }
+
+    /**
+     * The main method for parsing files.
+     * Here all the files required by the threads are parsed and
+     * their paths are replaced to mold to the local file system
+     * created by the utility.
+     * It must perform the respective operations unless the received
+     * file has the extension <i>".html" / ".htm"</i> or has <i>no extension<i/> at all.
+     * In the last case initial file is returned unchanged.
+     *
+     * @param content is the original file which needs to be parsed
+     * @return the original file with all links changed
+     * @throws MalformedURLException if the is any invalid URL
+     */
     private String parse(String content) {
-        return "";
+        // First of all verify if this file should be parsed or not
+
+        String filePath = currUrl.getUrlString().getFile(); // get file path
+        String fileName = filePath.split("/")[filePath.split("/").length-1]; //extract last element from path
+        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1); //get the extension of this file
+
+        if (!fileExtension.equals("html") && !fileExtension.equals(fileName) && !fileExtension.equals("htm")){ // if it has ".html" extension or has no extension
+            return content; // return the content without any change
+        }
+
+        /**
+         * newContain: string used as copy of the file content
+         * baseUrl: extracted base URL from that one which is used by this instance of PageCrawler
+         * partialURLs: REGEX for relative URLs
+         * pattern and matcher are used for REGEX verification
+         */
+        String newContain = "";
+        try {
+            String toAddInStack = "";
+            try {
+
+                newContain = changeURLs(content);
+                String baseUrl = currUrl.getUrlString().getProtocol() + "://" + currUrl.getUrlString().getHost() + "/";
+                String partialURLs = "((href)|(src)) ?= ?\"\\/[-A-Za-z0-9+&@#\\/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#\\/%=~_()|]";
+                Pattern pattern = Pattern.compile(partialURLs);
+                Matcher matcher = pattern.matcher(newContain);
+
+                while (matcher.find()) {
+                    String baseStr = matcher.group();
+
+                    StringTokenizer token = new StringTokenizer(baseStr, "#?");//we want to use the part of the link until "?"
+                    // Url made with relative path
+                    String priorityStr = "";
+
+                    if (token.hasMoreElements()) { // if there is any "?" we take de link until it
+                        priorityStr = token.nextToken();
+                    } else { // else we take the whole link
+                        priorityStr = baseStr;
+                    }
+                    //is used only that part which involve a link
+                    String changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?", "").trim();
+                    //is changed the old path with the new one which has as reference the file system
+                    newContain = newContain.replace(changedStr, Config.getInstance().rootDir + changedStr.substring(2));
+
+                    changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?\"\\/", "").trim();
+                    toAddInStack = baseUrl + changedStr;
+                    //the new link is added in URLs stack from StackManager
+                    StackManager.getInstance().PushURL(new URLString(new URL(toAddInStack), currUrl.getDepth() + 1));
+
+                }
+            } catch (MalformedURLException e) {
+                Logger.getInstance().log(LogCode.WARN, "[WARN] PageCrawler: MalformedURLException thrown for line: \"" + toAddInStack + "\". Line has been ignored.");
+            }
+        }catch(IOException e)
+        {
+            System.out.println("[FATAL]: Could not get instance of logger");
+        }
+
+        return newContain;
     }
 
     /**
