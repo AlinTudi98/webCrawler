@@ -21,20 +21,25 @@ public class WordIndexer {
     /**
      * Members:
      * wordString - the string got from the program parameters that contains the word/words we want to search
-     * freqList - the list of the searched words and their frequencies
+     * freqList - the list of the the frequencies of the searched words and the correspondig site
      * rootDir - the root directory where we want to start the search
      *
      */
     public String wordString;
     public List<WordFreqs> freqsList = new ArrayList<WordFreqs>();
     public String rootDir;
+
+
     final String delims = "[ ,.?!;:()<>\"]+";
     List<String> searchFiles = new ArrayList<String>();
     String[] tokens = new String[200];
     String[] words = new String[200];
     int numWords;
 
-
+    /**
+     * This is the function that does the counting of the appearances for a given page
+     * @param filename - the filename of the downloaded page we search in
+     */
     public void indexPage(String filename){
         int freq=0;
 
@@ -66,6 +71,10 @@ public class WordIndexer {
 
     }
 
+    /**
+     * This is the function that starts the counting for every page
+     * @param root - the root directory where we begin the search
+     */
     public void index(String root){
 
         File f = new File(root);
@@ -91,13 +100,13 @@ public class WordIndexer {
                 }
             }
         }
-        /*
-        for (int i=0;i<searchFiles.size();i++){
-            System.out.println(searchFiles.get(i));
-        }
-        */
     }
 
+    /**
+     * This is the method we call from our Main function
+     * @param pWordString - the string that contains the words we want to search for
+     * @param pRootDir - the root directory where the search begins
+     */
     public void search(String pWordString, String pRootDir){
         wordString=pWordString;
         rootDir=pRootDir;
@@ -112,8 +121,10 @@ public class WordIndexer {
         printSorted();
     }
 
+    /**
+     * This is the function that displays on the screen the result of the search
+     */
     void printSorted() {
-
         Collections.sort(freqsList);
         Collections.reverse(freqsList);
         System.out.println("Paginile care contin cuvintele cautate in ordinea relevantei sunt:");
