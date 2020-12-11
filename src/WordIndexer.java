@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -113,10 +114,12 @@ public class WordIndexer {
 
     void printSorted() {
 
-        //List<WordFreqs> sortedList = freqsList.stream().sorted().collect(Collectors.toList());
-
+        Collections.sort(freqsList);
+        Collections.reverse(freqsList);
+        System.out.println("Paginile care contin cuvintele cautate in ordinea relevantei sunt:");
         for (int i = 0; i < freqsList.size(); i++) {
-            System.out.println(freqsList.get(i).urlString + " = " + freqsList.get(i).freq);
+            if (freqsList.get(i).freq != 0)
+                System.out.println(freqsList.get(i).urlString);
         }
     }
 }
