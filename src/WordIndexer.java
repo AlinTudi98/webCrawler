@@ -3,6 +3,9 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static jdk.javadoc.internal.doclets.toolkit.util.Utils.toLowerCase;
 
@@ -22,23 +25,25 @@ public class WordIndexer {
      *
      */
     public String wordString;
-    public WordFreqs[] freqsList;
+    public List<WordFreqs> freqsList = new ArrayList<WordFreqs>();
     public String rootDir;
     final String delims = "[ ,.?!;:()<>\"]+";
+    List<String> searchFiles = new ArrayList<String>();
     String[] tokens = new String[200];
     String[] words = new String[200];
     int numWords;
 
 
     public void indexPage(String filename){
-        //ToDo: implement the search for the full wordString
+        int freq=0;
 
         try{
             File file = new File(filename);
             if (!file.exists()){
                 throw new FileException("Error reading input file",ErrorCode.ERR);
             }
-            Scanner reader = new Scanner(file);
+
+                    Scanner reader = new Scanner(file);
             while (reader.hasNextLine()){
                 String data = reader.nextLine();
                 tokens = data.split(delims);
@@ -47,11 +52,12 @@ public class WordIndexer {
                     for (int j=0;j<tokens.length;j++){
                         if ((words[i].toLowerCase()).equals(tokens[j].toLowerCase())){
                             //System.out.println(tokens[j-1] + " "+tokens[j]);
-                            freqsList[i].freq ++;
+                            freq++;
                         }
                     }
                 }
             }
+            freqsList.add(new WordFreqs(filename,freq,1));
         }
         catch (FileException | FileNotFoundException e){
             System.out.println(e.getMessage());
@@ -59,8 +65,36 @@ public class WordIndexer {
 
     }
 
-    public void index(){
+    public void index(String root){
 
+        File f = new File(root);
+        String[] pathnames;
+        pathnames = f.list();
+
+        Pattern pHtml = Pattern.compile(".*.html");
+        Pattern pDirectory = Pattern.compile("^[^.]*$");
+
+        if (pathnames != null){
+            for (String pathname : pathnames){
+                Matcher m1 = pHtml.matcher(pathname);
+                Matcher m2 = pDirectory.matcher(pathname);
+                if (m1.find()){
+                    if (!searchFiles.contains(pathname)){
+                        String newName = root + "/" + pathname;
+                        searchFiles.add(newName);
+                    }
+                }
+                if (m2.find()){
+                    String newPathname = root + "/" + pathname;
+                    index(newPathname);
+                }
+            }
+        }
+        /*
+        for (int i=0;i<searchFiles.size();i++){
+            System.out.println(searchFiles.get(i));
+        }
+        */
     }
 
     public void search(String pWordString, String pRootDir){
@@ -69,24 +103,20 @@ public class WordIndexer {
 
         words = wordString.split("[ ]+");
         numWords = words.length;
-        freqsList = new WordFreqs[20];
 
-        for (int i=0;i<numWords;i++){
-            freqsList[i] = new WordFreqs();
-            freqsList[i].word = words[i];
-            freqsList[i].urlString = pRootDir; //ToDo: Change that
-            freqsList[i].priority = 1;
-            freqsList[i].freq = 0;
+        index(pRootDir);
+        for (int i=0;i<searchFiles.size();i++){
+            indexPage(searchFiles.get(i));
         }
-
-        indexPage(pRootDir);
         printSorted();
     }
 
-    void printSorted(){
-        for (int i=0;i<numWords;i++){
-            System.out.println(freqsList[i].word + " = " + freqsList[i].freq);
+    void printSorted() {
+
+        //List<WordFreqs> sortedList = freqsList.stream().sorted().collect(Collectors.toList());
+
+        for (int i = 0; i < freqsList.size(); i++) {
+            System.out.println(freqsList.get(i).urlString + " = " + freqsList.get(i).freq);
         }
     }
-
 }
