@@ -8,7 +8,7 @@ public class Main {
     }
 
     private Config loadConfig(String configPath){
-        return Config.getInstance("filename");
+        return Config.getInstance(configPath);
     }
 
     private boolean processCommand(Config config, String[] args)
