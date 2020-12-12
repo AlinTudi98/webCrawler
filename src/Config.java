@@ -97,9 +97,10 @@ public class Config {
 
     public static Config getInstance(String ... filename)
     {
-        if(ConfigInstance == null) {
+        if(ConfigInstance == null || filename.length !=0) {
             ConfigInstance = new Config(filename[0]);
         }
+
         return ConfigInstance;
     }
 
