@@ -64,6 +64,7 @@ public class URLParser {
                         try {
                             URL url = new URL(line);
                             URLString urlString = new URLString(url, 0);
+                            stackManager.addRobot(urlString);
                             stackManager.PushURL(urlString);
                             logger.log(LogCode.INFO, "[INFO] URLParser: Added URL: \"" + line + "\" to download stack.");
 
@@ -109,6 +110,7 @@ public class URLParser {
                     try {
                         URL url = new URL(line);
                         URLString urlStr = new URLString(url, 0);
+                        stackManager.addRobot(urlStr);
                         stackManager.PushURL(urlStr);
                         logger.log(LogCode.INFO, "[INFO] URLParser: Added URL: \"" + line + "\" to download stack.");
                     } catch (MalformedURLException e) {
