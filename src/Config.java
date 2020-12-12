@@ -49,7 +49,7 @@ public class Config {
         try{
             File configFile = new File(filename);
             if (!configFile.exists()) {
-                throw new FileException("Error with config file", ErrorCode.ERR);
+                throw new FileException("Error with config file", LogCode.ERR);
             }
             Scanner reader = new Scanner(configFile);
 

@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static jdk.javadoc.internal.doclets.toolkit.util.Utils.toLowerCase;
 
 /**
  * This class is responsible for indexing the words from the downloaded pages
@@ -46,7 +43,7 @@ public class WordIndexer {
         try{
             File file = new File(filename);
             if (!file.exists()){
-                throw new FileException("Error reading input file",ErrorCode.ERR);
+                throw new FileException("Error reading input file",LogCode.ERR);
             }
 
                     Scanner reader = new Scanner(file);
