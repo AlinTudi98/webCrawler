@@ -78,7 +78,7 @@ public class StackManager {
             }
             try {
                 if (availability){ // if url link is a valid one it will be added in stack
-                    Logger.getInstance().log(LogCode.INFO, "[INFO] StackManager: Added URL: \"" + url + "\" to download stack.");
+                    Logger.getInstance().log(LogCode.INFO, "StackManager: Added URL: \"" + url + "\" to download stack.");
                     urlStack.push(url);
                 }
             }catch(IOException e)
@@ -129,11 +129,11 @@ public class StackManager {
                         }
                     }
                     robotsList.add(newRobotToAdd);
-                    Logger.getInstance().log(LogCode.INFO, "[INFO] StackManager: Added URL: \"" + url.getUrlString().toString() + "\" to Robots list.");
+                    Logger.getInstance().log(LogCode.INFO, "StackManager: Added URL: \"" + url.getUrlString().toString() + "\" to Robots list.");
                 }
 
             } catch (MalformedURLException ignored) {
-                Logger.getInstance().log(LogCode.WARN, "[WARN] StackManager: MalformedURLException thrown for line: \"" + url.getUrlString().toString() + "\". Line has been ignored.");
+                Logger.getInstance().log(LogCode.WARN, "StackManager: MalformedURLException thrown for line: \"" + url.getUrlString().toString() + "\". Line has been ignored.");
             }
 
         }catch(IOException e)

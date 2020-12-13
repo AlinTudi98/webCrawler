@@ -11,7 +11,6 @@ import java.nio.file.Paths;
  * content.
  *
  * @author Ghita Alexandru-Andrei
- *
  */
 
 public class Sitemap {
@@ -19,12 +18,12 @@ public class Sitemap {
     /**
      * Members of class Sitemap
      * path: the path to the directory that contains the
-     *       downloaded items
+     * downloaded items
      */
 
     private final String path;
 
-    public Sitemap(String path){
+    public Sitemap(String path) {
         this.path = path;
     }
 
@@ -39,6 +38,7 @@ public class Sitemap {
     /**
      * Function used to add tabs for a pretty print, based
      * on the files hierarchy
+     *
      * @param tabsNum the level that the folder/file is on
      * @return a string filled with the required number of tabs
      */
@@ -48,16 +48,15 @@ public class Sitemap {
     }
 
     /**
-     *
      * @param parent contains the path from the parent to the file in cause
      * @return the level the child is on, based on the number of slashes found
-     *         in the parent path
+     * in the parent path
      */
 
     private int getTabsNumber(String parent) {
         int tabNum = 1; //only the root folder is displayed on the first level
-        for(int i = 0; i<parent.length(); i++) {
-            if(parent.charAt(i) == '\\' || parent.charAt(i) == '/') { //Either Unix or Windows format
+        for (int i = 0; i < parent.length(); i++) {
+            if (parent.charAt(i) == '\\' || parent.charAt(i) == '/') { //Either Unix or Windows format
                 tabNum++;
             }
         }
@@ -69,12 +68,12 @@ public class Sitemap {
      * Lists all the regular files inside a directory, excluding directories.
      * Method uses Files.walk for both Unix and Windows compatibility.
      *
-     * @param startDir the directory from which the files are listed
-     * @param tabsNum the level the base directory is on
+     * @param startDir   the directory from which the files are listed
+     * @param tabsNum    the level the base directory is on
      * @param fileWriter sitemap output file
      * @throws IOException if unable to write to output file or
-     * <b>FATAL</b> exception if unable to get an instance
-     * of the Logger used to log the previous exception.
+     *                     <b>FATAL</b> exception if unable to get an instance
+     *                     of the Logger used to log the previous exception.
      */
 
     private void listFilesInDirectory(String startDir, int tabsNum, FileWriter fileWriter) throws IOException {
@@ -82,51 +81,8 @@ public class Sitemap {
                 .filter(Files::isRegularFile)
                 .forEach(filePath -> {
                     try {
-                        writeToFile(fileWriter, createTaber(tabsNum)+filePath.getFileName() + "\n");
+                        writeToFile(fileWriter, createTaber(tabsNum) + filePath.getFileName() + "\n");
                     } catch (IOException e) {
-                        try {
-                            Logger.getInstance().log(LogCode.FATAL,
-                                             "Sitemap was unable to write to output file!");
-                        } catch (IOException exp) {
-                            System.out.println("Unexpected error occurred! Logger cannot be created!");
-                        }
-                    }
-                });
-    }
-
-    /**
-     * Method lists all the directories located in the base directory,
-     * calling {@link Sitemap#listFilesInDirectory(String, int, FileWriter)}
-     * for each one of them
-     * @param startDir the main directory for which the Sitemap was invoked
-     * @param fileWriter sitemap output file
-     * @throws IOException if unable to write to output file or
-     * <b>FATAL</b> exception if unable to get an instance
-     * of the Logger used to log the previous exception.
-     */
-
-    private void listFiles(String startDir, FileWriter fileWriter) throws IOException {
-        Files.walk(Paths.get(startDir))
-                .filter(Files::isDirectory)
-                .forEach(filePath -> {
-                    try {
-                        if(!filePath.toString().equals(startDir)){
-                            writeToFile(fileWriter, createTaber(getTabsNumber(filePath.getParent().toString()))
-                                        +filePath.getFileName()+"/\n");
-                        }
-                        else {
-                            writeToFile(fileWriter, filePath.getFileName()+"\n");
-                        }
-
-                        if(!filePath.toString().equals(startDir)){
-                            listFilesInDirectory(filePath.toString(),
-                                    getTabsNumber(filePath.getParent().toString())+1, fileWriter);
-                        }
-                        else {
-                            listFilesInDirectory(filePath.toString(),1, fileWriter);
-                        }
-
-                    }catch (IOException e) {
                         try {
                             Logger.getInstance().log(LogCode.FATAL,
                                     "Sitemap was unable to write to output file!");
@@ -138,16 +94,57 @@ public class Sitemap {
     }
 
     /**
+     * Method lists all the directories located in the base directory,
+     * calling {@link Sitemap#listFilesInDirectory(String, int, FileWriter)}
+     * for each one of them
      *
+     * @param startDir   the main directory for which the Sitemap was invoked
+     * @param fileWriter sitemap output file
+     * @throws IOException if unable to write to output file or
+     *                     <b>FATAL</b> exception if unable to get an instance
+     *                     of the Logger used to log the previous exception.
+     */
+
+    private void listFiles(String startDir, FileWriter fileWriter) throws IOException {
+        Files.walk(Paths.get(startDir))
+                .filter(Files::isDirectory)
+                .forEach(filePath -> {
+                    try {
+                        if (!filePath.toString().equals(startDir)) {
+                            writeToFile(fileWriter, createTaber(getTabsNumber(filePath.getParent().toString()))
+                                    + filePath.getFileName() + "/\n");
+                        } else {
+                            writeToFile(fileWriter, filePath.getFileName() + "\n");
+                        }
+
+                        if (!filePath.toString().equals(startDir)) {
+                            listFilesInDirectory(filePath.toString(),
+                                    getTabsNumber(filePath.getParent().toString()) + 1, fileWriter);
+                        } else {
+                            listFilesInDirectory(filePath.toString(), 1, fileWriter);
+                        }
+
+                    } catch (IOException e) {
+                        try {
+                            Logger.getInstance().log(LogCode.FATAL,
+                                    "Sitemap was unable to write to output file!");
+                        } catch (IOException exp) {
+                            System.out.println("Unexpected error occurred! Logger cannot be created!");
+                        }
+                    }
+                });
+    }
+
+    /**
      * @return true if the operation was successful, or logs the error
      * @throws IOException if it's unable to create a <i>FileWriter</i> from
-     * the file given
+     *                     the file given
      */
 
     public boolean getSiteMap() throws IOException {
         Path fileName = Paths.get(this.path).getFileName();
 
-        FileWriter fileWriter = new FileWriter(fileName.toString()+"_sitemap.txt");
+        FileWriter fileWriter = new FileWriter(fileName.toString() + "_sitemap.txt");
         //creates a file with the following format: <root_directory>_sitemap.txt
 
         listFiles(this.path, fileWriter);
