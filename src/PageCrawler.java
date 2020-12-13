@@ -70,8 +70,13 @@ public class PageCrawler extends Thread{
         long contentLength; //Page content length
         String pageContent; //Page content
         String newPageContent; //New Page content after parse
+        String filepath; //Store file path
+        String pageName; //Store pageName
+        String pageExtension; //Used for store page extension
         int bytesRead; //Number of bytes read
         int totalBytesRead; //Total number of bytes read
+        int i;
+        int check_pageExtension; //Used for check page extension
         byte[] buffer = new byte[4096]; //Buffer in which store downloaded bytes
         ByteArrayOutputStream bytesBuffer; //Buffer in which store all downloaded bytes
         InputStream inputStream; //Used for working with Http input stream
@@ -87,6 +92,34 @@ public class PageCrawler extends Thread{
 
                         if (maxDepth < currUrl.getDepth()) { //Check maxDepth
                             throw new UnknownException("Maximum depth exceeded to page:" + urlString, LogCode.WARN);
+                        }
+
+                        filepath = currUrl.getUrlString().getFile(); //Get file path
+                        pageName = filepath.split("/")[filepath.split("/").length-1]; //Extract page name
+                        pageExtension = pageName.substring(pageName.lastIndexOf(".") + 1); //Extract page extension
+
+                        check_pageExtension = 0; //Unset check page extension
+                        for (i=0; i < Config.getInstance().dTypes.length; i++) {
+
+                            //Check if page extension is in allowed type list
+                            if (pageExtension.equals(Config.getInstance().dTypes[i])) {
+                                check_pageExtension = 1; //Set check page extension
+                                break;
+                            }
+                        }
+
+                        /*
+                         * Check if the page does not have the .html/.htm
+                         * extension or if it has an extension and it's not
+                         * in the list of valid extensions, then the page
+                         * will not be downloaded
+                         */
+                        if (check_pageExtension == 0 && !pageExtension.equals("html") &&
+                                !pageExtension.equals("htm") && !pageExtension.equals(pageName)) {
+
+                            //Thrown exception because page extension is not valid
+                            throw new UnknownException("Page:" + urlString + " does not have a valid extension" +
+                                    " to be downloaded!", LogCode.WARN);
                         }
 
                         httpConn = (HttpURLConnection) this.currUrl.getUrlString().openConnection();
@@ -156,7 +189,7 @@ public class PageCrawler extends Thread{
     }
 
     /**
-     * Function tha returns the crawl delay that should be
+     * Function that returns the crawl delay that should be
      * applied to crawl during the download process.
      * If is wanted to apply crawl delay from <i>Robots.txt</i>
      * file, than it is checked if there is a value for crawl
