@@ -20,12 +20,13 @@ public class StackManager {
      *   urlStack: a stack with all the saved links which follows to be used by the threads
      *   robotsList: a list with all the Robot instances found at a moment of time
      *   lock: is an Object used only to avoid "Race concurrence" case between threads
-     *
+     *   visitedURLs: all URLs already visited
      */
 
     private static StackManager stackmanagerInstance = null;
     private Stack<URLString> urlStack;
     private ArrayList<Robot> robotsList;
+    private ArrayList<URLString> visitedURLs;
     private final Object lock = new Object();
 
     //private constructor requested by Singleton pattern
@@ -33,6 +34,7 @@ public class StackManager {
 
         urlStack = new Stack<URLString>();
         robotsList = new ArrayList<Robot>();
+        visitedURLs = new ArrayList<URLString>();
     }
 
     /**
@@ -67,8 +69,18 @@ public class StackManager {
                     }
                 }
             }
+
+            if(!visitedURLs.isEmpty() && availability) {
+                for ( URLString iterator : visitedURLs ) {
+                    if (url.getUrlString().equals(iterator.getUrlString())) {
+                        availability = false;
+                        break;
+                    }
+                }
+            }
+
             //verify if this url is not already in Stack
-            if(!urlStack.isEmpty()) {
+            if(!urlStack.isEmpty() && availability) {
                 for ( URLString iterator : urlStack ) {
                     if (url.getUrlString().equals(iterator.getUrlString())) {
                         availability = false;
@@ -106,6 +118,7 @@ public class StackManager {
 
         synchronized (lock){
             firstElement = urlStack.pop();
+            visitedURLs.add(firstElement);
             return firstElement;
         }
     }
