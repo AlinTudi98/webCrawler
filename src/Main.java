@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -51,7 +52,7 @@ public class Main {
     private static boolean processCommand(String[] args) {
         String command = args[1];
 
-        switch(command.toUpperCase()){
+        switch(command.toLowerCase()){
             case "crawl":
                 for(String arg: args){
                     if(arg.contains("-dLink=")){
@@ -62,14 +63,15 @@ public class Main {
                     if(arg.contains("-dLinksFile=")){
                         String filename = arg.substring(12);
                         URLParser parser = new URLParser();
-                        parser.parse(filename);
+                        File file = new File(filename);
+                        parser.parse(file);
                     }
                 }
 
                 ArrayList<PageCrawler> crawlerList = new ArrayList<PageCrawler>();
                 for(int i=0;i<Config.getInstance().numThreads;i++)
                 {
-                    PageCrawler tmp = new PageCrawler(Config.getInstance().maxDepth,Config.getInstance().dSizeLimit);
+                    PageCrawler tmp = new PageCrawler(Config.getInstance().maxDepth,Config.getInstance().dSizeLimit * 1024);
                     tmp.start();
                     crawlerList.add(tmp);
                 }
@@ -121,7 +123,7 @@ public class Main {
 
             case "list":
                 for(String type: Config.getInstance().dTypes) {
-                    Filter filter = new Filter(type, Config.getInstance().dSizeLimit);
+                    Filter filter = new Filter(type, Config.getInstance().dSizeLimit * 1024);
                     try {
                         filter.search(Config.getInstance().rootDir);
                     }

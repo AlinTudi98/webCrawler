@@ -83,7 +83,7 @@ public class PageCrawler extends Thread {
         byte[] buffer = new byte[4096]; //Buffer in which store downloaded bytes
         ByteArrayOutputStream bytesBuffer; //Buffer in which store all downloaded bytes
         InputStream inputStream; //Used for working with Http input stream
-        String urlString = this.currUrl.getUrlString().toString(); //Url string used for log
+
 
         try {
             Logger logger = Logger.getInstance();
@@ -104,6 +104,7 @@ public class PageCrawler extends Thread {
                     }
 
                     try {
+                        String urlString = this.currUrl.getUrlString().toString(); //Url string used for log
                         Thread.sleep(this.getCrawlDelay()); //Apply crawl delay
 
                         if (maxDepth < currUrl.getDepth()) { //Check maxDepth
@@ -112,31 +113,33 @@ public class PageCrawler extends Thread {
 
                         filepath = currUrl.getUrlString().getFile(); //Get file path
 
-                        pageName = filepath.split("/")[filepath.split("/").length - 1]; //Extract page name
-                        pageExtension = pageName.substring(pageName.lastIndexOf(".") + 1); //Extract page extension
+                        if(!filepath.equals("/")) {
+                            pageName = filepath.split("/")[filepath.split("/").length - 1]; //Extract page name
+                            pageExtension = pageName.substring(pageName.lastIndexOf(".") + 1); //Extract page extension
 
-                        check_pageExtension = 0; //Unset check page extension
-                        for ( i = 0; i < Config.getInstance().dTypes.length; i++ ) {
+                            check_pageExtension = 0; //Unset check page extension
+                            for (i = 0; i < Config.getInstance().dTypes.length; i++) {
 
-                            //Check if page extension is in allowed type list
-                            if (pageExtension.equals(Config.getInstance().dTypes[i])) {
-                                check_pageExtension = 1; //Set check page extension
-                                break;
+                                //Check if page extension is in allowed type list
+                                if (pageExtension.equals(Config.getInstance().dTypes[i])) {
+                                    check_pageExtension = 1; //Set check page extension
+                                    break;
+                                }
                             }
-                        }
 
-                        /*
-                         * Check if the page does not have the .html/.htm
-                         * extension or if it has an extension and it's not
-                         * in the list of valid extensions, then the page
-                         * will not be downloaded
-                         */
-                        if (check_pageExtension == 0 && !pageExtension.equals("html") &&
-                                !pageExtension.equals("htm") && !pageExtension.equals(pageName)) {
+                            /*
+                             * Check if the page does not have the .html/.htm
+                             * extension or if it has an extension and it's not
+                             * in the list of valid extensions, then the page
+                             * will not be downloaded
+                             */
+                            if (check_pageExtension == 0 && !pageExtension.equals("html") &&
+                                    !pageExtension.equals("htm") && !pageExtension.equals(pageName)) {
 
-                            //Thrown exception because page extension is not valid
-                            throw new UnknownException("Page:" + urlString + " does not have a valid extension" +
-                                    " to be downloaded!", LogCode.WARN);
+                                //Thrown exception because page extension is not valid
+                                throw new UnknownException("Page:" + urlString + " does not have a valid extension" +
+                                        " to be downloaded!", LogCode.WARN);
+                            }
                         }
 
                         httpConn = (HttpURLConnection) this.currUrl.getUrlString().openConnection();
@@ -321,13 +324,14 @@ public class PageCrawler extends Thread {
         // First of all verify if this file should be parsed or not
 
         String filePath = currUrl.getUrlString().getFile(); // get file path
-        String fileName = filePath.split("/")[filePath.split("/").length - 1]; //extract last element from path
-        String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1); //get the extension of this file
+        if(!filePath.equals("/")) {
+            String fileName = filePath.split("/")[filePath.split("/").length - 1]; //extract last element from path
+            String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1); //get the extension of this file
 
-        if (!fileExtension.equals("html") && !fileExtension.equals(fileName) && !fileExtension.equals("htm")) { // if it has ".html" extension or has no extension
-            return content; // return the content without any change
+            if (!fileExtension.equals("html") && !fileExtension.equals(fileName) && !fileExtension.equals("htm")) { // if it has ".html" extension or has no extension
+                return content; // return the content without any change
+            }
         }
-
         /**
          * newContain: string used as copy of the file content
          * baseUrl: extracted base URL from that one which is used by this instance of PageCrawler
@@ -404,9 +408,14 @@ public class PageCrawler extends Thread {
         boolean check_createDir;
         int i;
 
-        //Extract position for extension for check after if exists or not
-        position = arrayFiles.get(arrayFiles.size() - 1).lastIndexOf('.');
-
+        if(arrayFiles.size() == 0)
+        {
+            position = -1;
+        }
+        else {
+            //Extract position for extension for check after if exists or not
+            position = arrayFiles.get(arrayFiles.size() - 1).lastIndexOf('.');
+        }
         //Check if extension for page does not exist
         if (position < 0) {
 
