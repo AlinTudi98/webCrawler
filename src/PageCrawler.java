@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * @author Ciobanu Cosmin-Marian
  */
 
-public class PageCrawler extends Thread{
+public class PageCrawler extends Thread {
     /**
      * Members of class <b>PageCrawler</b>
      * <i>maxDepth :</i> maximum depth could have in
@@ -32,11 +32,14 @@ public class PageCrawler extends Thread{
     private int maxDepth;
     private long maxSize;
     private URLString currUrl;
+    private static int threadsWaiting = 0;
+    private final Object lock = new Object();
 
     /**
      * <b>PageCrawler</b> class constructor
+     *
      * @param depth maximum depth could have in download process
-     * @param size maximum size in bytes could have downloaded page
+     * @param size  maximum size in bytes could have downloaded page
      */
     public PageCrawler(int depth, long size) {
         this.maxDepth = depth;
@@ -70,8 +73,13 @@ public class PageCrawler extends Thread{
         long contentLength; //Page content length
         String pageContent; //Page content
         String newPageContent; //New Page content after parse
+        String filepath; //Store file path
+        String pageName; //Store pageName
+        String pageExtension; //Used for store page extension
         int bytesRead; //Number of bytes read
         int totalBytesRead; //Total number of bytes read
+        int i;
+        int check_pageExtension; //Used for check page extension
         byte[] buffer = new byte[4096]; //Buffer in which store downloaded bytes
         ByteArrayOutputStream bytesBuffer; //Buffer in which store all downloaded bytes
         InputStream inputStream; //Used for working with Http input stream
@@ -81,12 +89,53 @@ public class PageCrawler extends Thread{
             Logger logger = Logger.getInstance();
 
             try {
-                while ((currUrl = StackManager.getInstance().PopURL()) != null) {
+                while (true) {
+                    synchronized (lock) {
+                        threadsWaiting++;
+                    }
+
+                    while ((currUrl = StackManager.getInstance().PopURL()) == null) {
+                        if (threadsWaiting == Config.getInstance().numThreads)
+                            return;
+                    }
+
+                    synchronized (lock) {
+                        threadsWaiting--;
+                    }
+
                     try {
                         Thread.sleep(this.getCrawlDelay()); //Apply crawl delay
 
                         if (maxDepth < currUrl.getDepth()) { //Check maxDepth
                             throw new UnknownException("Maximum depth exceeded to page:" + urlString, LogCode.WARN);
+                        }
+
+                        filepath = currUrl.getUrlString().getFile(); //Get file path
+                        pageName = filepath.split("/")[filepath.split("/").length - 1]; //Extract page name
+                        pageExtension = pageName.substring(pageName.lastIndexOf(".") + 1); //Extract page extension
+
+                        check_pageExtension = 0; //Unset check page extension
+                        for ( i = 0; i < Config.getInstance().dTypes.length; i++ ) {
+
+                            //Check if page extension is in allowed type list
+                            if (pageExtension.equals(Config.getInstance().dTypes[i])) {
+                                check_pageExtension = 1; //Set check page extension
+                                break;
+                            }
+                        }
+
+                        /*
+                         * Check if the page does not have the .html/.htm
+                         * extension or if it has an extension and it's not
+                         * in the list of valid extensions, then the page
+                         * will not be downloaded
+                         */
+                        if (check_pageExtension == 0 && !pageExtension.equals("html") &&
+                                !pageExtension.equals("htm") && !pageExtension.equals(pageName)) {
+
+                            //Thrown exception because page extension is not valid
+                            throw new UnknownException("Page:" + urlString + " does not have a valid extension" +
+                                    " to be downloaded!", LogCode.WARN);
                         }
 
                         httpConn = (HttpURLConnection) this.currUrl.getUrlString().openConnection();
@@ -110,7 +159,7 @@ public class PageCrawler extends Thread{
                         inputStream = httpConn.getInputStream();
                         bytesBuffer = new ByteArrayOutputStream();
 
-                        logger.log(LogCode.INFO,"Downloading " +  urlString);
+                        logger.log(LogCode.INFO, "Downloading " + urlString);
 
                         bytesRead = 0;
                         totalBytesRead = 0;
@@ -130,15 +179,15 @@ public class PageCrawler extends Thread{
                         pageContent = bytesBuffer.toString(StandardCharsets.UTF_8);
                         bytesBuffer.close();
 
-                        logger.log(LogCode.INFO,"Page " +  urlString + " has been downloaded!");
+                        logger.log(LogCode.INFO, "Page " + urlString + " has been downloaded!");
 
                         newPageContent = this.parse(pageContent); //Achieve modified Page
-                        logger.log(LogCode.INFO,"Page " +  urlString + " has been parsed!");
+                        logger.log(LogCode.INFO, "Page " + urlString + " has been parsed!");
 
                         if (!makeFS(newPageContent)) {
                             throw new FileException("Error saving page:" + urlString, LogCode.ERR);
                         }
-                        logger.log(LogCode.INFO,"Page " +  urlString + " has been saved to file!");
+                        logger.log(LogCode.INFO, "Page " + urlString + " has been saved to file!");
 
                     } catch (InterruptedException | IOException e) {
                         logger.log(LogCode.ERR, e.getMessage());
@@ -147,7 +196,7 @@ public class PageCrawler extends Thread{
                     }
                 }
             } catch (EmptyStackException e) {
-                logger.log(LogCode.INFO,"The stack with links for download is empty!");
+                logger.log(LogCode.INFO, "The stack with links for download is empty!");
             }
         } catch (IOException e) {
             System.out.println("[FATAL]: Could not get instance of logger");
@@ -156,7 +205,7 @@ public class PageCrawler extends Thread{
     }
 
     /**
-     * Function tha returns the crawl delay that should be
+     * Function that returns the crawl delay that should be
      * applied to crawl during the download process.
      * If is wanted to apply crawl delay from <i>Robots.txt</i>
      * file, than it is checked if there is a value for crawl
@@ -167,7 +216,7 @@ public class PageCrawler extends Thread{
      * and {@link Config#ignoreRobots} is not set, otherwise
      * return default value from {@link Config#delay}
      */
-    private int getCrawlDelay(){
+    private int getCrawlDelay() {
 
         //Default crawl delay
         int defaultDelay = Config.getInstance().delay;
@@ -180,7 +229,7 @@ public class PageCrawler extends Thread{
             if (robotsDelay > 0) {
                 try {
                     Logger.getInstance().log(LogCode.INFO, "Applied crawl delay with value :"
-                                             + robotsDelay + " from robots.txt file!");
+                            + robotsDelay + " from robots.txt file!");
                 } catch (IOException e) {
                     System.out.println("[FATAL]: Could not get instance of logger");
                 }
@@ -191,7 +240,7 @@ public class PageCrawler extends Thread{
 
         try {
             Logger.getInstance().log(LogCode.INFO, "Applied crawl delay with value :"
-                                     + defaultDelay + " from configuration file!");
+                    + defaultDelay + " from configuration file!");
         } catch (IOException e) {
             System.out.println("[FATAL]: Could not get instance of logger");
         }
@@ -201,12 +250,13 @@ public class PageCrawler extends Thread{
 
     /**
      * This method deals with all links that have a full format <b>(eg. https?://example.com/*)</b>
+     *
      * @param text is the contents of the file to be parsed
      * @return returns the received file as a parameter with the new paths in the file system
      * @throws MalformedURLException if the is any invalid URL
      */
 
-    private String changeURLs(String text){
+    private String changeURLs(String text) {
         /**
          * newContain is the copy of our file contain
          * urlPattern is the pattern for any URL which is complete
@@ -216,39 +266,38 @@ public class PageCrawler extends Thread{
         String urlPattern = "\\b(https?://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
         Pattern pattern = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
         Matcher matcher = pattern.matcher(text);
-        String priorityStr="";
-        try{
+        String priorityStr = "";
+        try {
             try {
-                while(matcher.find()) { // while there are sites unchanged
+                while (matcher.find()) { // while there are sites unchanged
 
                     String baseStr = matcher.group();
-                    StringTokenizer token = new StringTokenizer(baseStr,"#?"); //we want to use the part of the link until "?"
+                    StringTokenizer token = new StringTokenizer(baseStr, "#?"); //we want to use the part of the link until "?"
 
                     if (token.hasMoreElements()) { // if there is any "?" we take de link until it
                         priorityStr = token.nextToken();
-                    }else { // else we take the whole link
+                    } else { // else we take the whole link
                         priorityStr = baseStr;
                     }
 
                     URL currentUrl = new URL(priorityStr);
                     String portionToChange = currentUrl.getProtocol() + "://" + currentUrl.getHost() + "/"; //we take the part of the link which needs to be changed with path to root directory
 
-                    if (portionToChange != currUrl.getUrlString().toString()){ //if the new link is not the current one of our page
+                    if (portionToChange != currUrl.getUrlString().toString()) { //if the new link is not the current one of our page
 
-                        StackManager.getInstance().addRobot(new URLString(new URL(portionToChange),currUrl.getDepth())); //we add a Robot instance if our link has robots.txt file
+                        StackManager.getInstance().addRobot(new URLString(new URL(portionToChange), currUrl.getDepth())); //we add a Robot instance if our link has robots.txt file
                     }
                     // current's match path is changed
-                    String replacedStr = priorityStr.replace(portionToChange,Config.getInstance().rootDir);
+                    String replacedStr = priorityStr.replace(portionToChange, Config.getInstance().rootDir);
 
                     // the link is added to stack
-                    StackManager.getInstance().PushURL(new URLString(new URL(priorityStr),currUrl.getDepth()));
-                    newContain = newContain.replace(baseStr,replacedStr);
+                    StackManager.getInstance().PushURL(new URLString(new URL(priorityStr), currUrl.getDepth()));
+                    newContain = newContain.replace(baseStr, replacedStr);
                 }
             } catch (MalformedURLException e) {
                 Logger.getInstance().log(LogCode.WARN, "[WARN] PageCrawler: MalformedURLException thrown for line: \"" + priorityStr + "\". Line has been ignored.");
             }
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             System.out.println("[FATAL]: Could not get instance of logger");
         }
         return newContain;
@@ -271,10 +320,10 @@ public class PageCrawler extends Thread{
         // First of all verify if this file should be parsed or not
 
         String filePath = currUrl.getUrlString().getFile(); // get file path
-        String fileName = filePath.split("/")[filePath.split("/").length-1]; //extract last element from path
+        String fileName = filePath.split("/")[filePath.split("/").length - 1]; //extract last element from path
         String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1); //get the extension of this file
 
-        if (!fileExtension.equals("html") && !fileExtension.equals(fileName) && !fileExtension.equals("htm")){ // if it has ".html" extension or has no extension
+        if (!fileExtension.equals("html") && !fileExtension.equals(fileName) && !fileExtension.equals("htm")) { // if it has ".html" extension or has no extension
             return content; // return the content without any change
         }
 
@@ -319,10 +368,9 @@ public class PageCrawler extends Thread{
 
                 }
             } catch (MalformedURLException e) {
-                Logger.getInstance().log(LogCode.WARN, "[WARN] PageCrawler: MalformedURLException thrown for line: \"" + toAddInStack + "\". Line has been ignored.");
+                Logger.getInstance().log(LogCode.WARN, "PageCrawler: MalformedURLException thrown for line: \"" + toAddInStack + "\". Line has been ignored.");
             }
-        }catch(IOException e)
-        {
+        } catch (IOException e) {
             System.out.println("[FATAL]: Could not get instance of logger");
         }
 
@@ -367,7 +415,7 @@ public class PageCrawler extends Thread{
         }
 
         try {
-            for (i = 0; i < arrayFiles.size() - 1; i++) {
+            for ( i = 0; i < arrayFiles.size() - 1; i++ ) {
                 rootPath += '/' + arrayFiles.get(i);
                 forCreate = new File(rootPath);
 
@@ -383,14 +431,14 @@ public class PageCrawler extends Thread{
 
             rootPath += '/' + arrayFiles.get(arrayFiles.size() - 1);
             Logger.getInstance().log(LogCode.INFO, "Path for " + currUrl.getUrlString().toString() +
-                                      " is valid and content can be saved there!");
+                    " is valid and content can be saved there!");
 
             outputStream = new FileOutputStream(rootPath);
             outputStream.write(finalContent.getBytes());
             outputStream.close();
 
             Logger.getInstance().log(LogCode.INFO, "Content for " + currUrl.getUrlString().toString() +
-                                      " has been saved!");
+                    " has been saved!");
 
         } catch (FileException | IOException e) {
 
