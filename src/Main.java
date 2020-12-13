@@ -72,6 +72,7 @@ public class Main {
                     tmp.start();
                     crawlerList.add(tmp);
                 }
+                return true;
 
             case "sitemap":
                 Sitemap map = new Sitemap(Config.getInstance().rootDir);
@@ -136,8 +137,9 @@ public class Main {
                     }
                 }
                 return true;
-
+            default: return false;
         }
+
     }
 
 }
