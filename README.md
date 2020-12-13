@@ -13,3 +13,13 @@ De asemenea, ofera si posibilitatea procesarii paginilor descarcate prin mecanis
 ## Utilizare
 
 ## Realizatori
+
+:man_student: Tudose Alin-Romeo  
+<br />
+:woman_student: Avram Andreea-Elena  
+<br />
+:man_student: Brînzea Andrei  
+<br />
+:man_student: Ciobanu Cosmin-Marian  
+<br />
+:man_student: Ghiță Andrei-Alexandru  
