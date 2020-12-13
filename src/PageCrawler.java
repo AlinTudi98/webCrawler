@@ -111,6 +111,7 @@ public class PageCrawler extends Thread {
                         }
 
                         filepath = currUrl.getUrlString().getFile(); //Get file path
+
                         pageName = filepath.split("/")[filepath.split("/").length - 1]; //Extract page name
                         pageExtension = pageName.substring(pageName.lastIndexOf(".") + 1); //Extract page extension
 
