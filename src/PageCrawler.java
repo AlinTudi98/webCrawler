@@ -133,8 +133,8 @@ public class PageCrawler extends Thread {
                              * in the list of valid extensions, then the page
                              * will not be downloaded
                              */
-                            if (check_pageExtension == 0 && !pageExtension.equals("html") &&
-                                    !pageExtension.equals("htm") && !pageExtension.equals(pageName)) {
+                            if (check_pageExtension == 0 && !pageExtension.equals("html") && !pageExtension.equals("htm")
+                                    && !pageExtension.equals(pageName) && !pageExtension.equals("js") &&!pageExtension.equals("css")) {
 
                                 //Thrown exception because page extension is not valid
                                 throw new UnknownException("Page:" + urlString + " does not have a valid extension" +
@@ -419,22 +419,33 @@ public class PageCrawler extends Thread {
         boolean check_createDir;
         int i;
 
-        if (arrayFiles.size() == 0) {
-            position = -1;
-        } else {
-            //Extract position for extension for check after if exists or not
-            position = arrayFiles.get(arrayFiles.size() - 1).lastIndexOf('.');
-        }
-        //Check if extension for page does not exist
-        if (position < 0) {
-
-            //Add a default page "index.html" where save content of page
-            arrayFiles.add("index.html");
-
-        }
-
         try {
-            for ( i = 0; i < arrayFiles.size() - 1; i++ ) {
+            rootPath += '/' + this.currUrl.getUrlString().getHost();
+            forCreate = new File(rootPath);
+            if (!forCreate.exists()) {
+                if (!forCreate.mkdir()) {
+                    throw new FileException("Couldn't create dir:" + rootPath + " for download page:" +
+                            currUrl.getUrlString().toString(), LogCode.ERR);
+                }
+            }
+
+            if (arrayFiles.size() <= 0) {
+                position = -1;
+            } else {
+
+                //Extract position for extension for check after if exists or not
+                position = arrayFiles.get(arrayFiles.size() - 1).lastIndexOf('.');
+            }
+
+            //Check if extension for page does not exist
+            if (position < 0) {
+
+                //Add a default page "index.html" where save content of page
+                arrayFiles.add("index.html");
+
+            }
+            
+            for (i = 1; i < arrayFiles.size() - 1; i++) {
                 rootPath += '/' + arrayFiles.get(i);
                 forCreate = new File(rootPath);
 
