@@ -113,12 +113,12 @@ public class PageCrawler extends Thread {
 
                         filepath = currUrl.getUrlString().getFile(); //Get file path
 
-                        if(!filepath.equals("/")) {
+                        if (!filepath.equals("/")) {
                             pageName = filepath.split("/")[filepath.split("/").length - 1]; //Extract page name
                             pageExtension = pageName.substring(pageName.lastIndexOf(".") + 1); //Extract page extension
 
                             check_pageExtension = 0; //Unset check page extension
-                            for (i = 0; i < Config.getInstance().dTypes.length; i++) {
+                            for ( i = 0; i < Config.getInstance().dTypes.length; i++ ) {
 
                                 //Check if page extension is in allowed type list
                                 if (pageExtension.equals(Config.getInstance().dTypes[i])) {
@@ -267,7 +267,7 @@ public class PageCrawler extends Thread {
          * pattern and matcher are used for REGEX validation
          */
         String newContain = text;
-        String urlPattern = "\\b(https?://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
+        String urlPattern = "((https?)?://|www[.])[-A-Za-z0-9+&@#/%?=~_()|!:,.;]*[-A-Za-z0-9+&@#/%=~_()|]";
         Pattern pattern = Pattern.compile(urlPattern, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
         Matcher matcher = pattern.matcher(text);
         String priorityStr = "";
@@ -284,12 +284,16 @@ public class PageCrawler extends Thread {
                         priorityStr = baseStr;
                     }
 
+                    if (!priorityStr.contains("http")) {
+                        priorityStr = "http://" + priorityStr;
+                    }
+
                     URL currentUrl = new URL(priorityStr);
-                    String portionToChange = currentUrl.getProtocol() + "://" + currentUrl.getHost() + "/"; //we take the part of the link which needs to be changed with path to root directory
+                    String portionToChange = currentUrl.getProtocol() + "://"; //we take the part of the link which needs to be changed with path to root directory
 
-                    if (portionToChange != currUrl.getUrlString().toString()) { //if the new link is not the current one of our page
+                    if (portionToChange + currentUrl.getHost() + "/" != currUrl.getUrlString().toString()) { //if the new link is not the current one of our page
 
-                        StackManager.getInstance().addRobot(new URLString(new URL(portionToChange), currUrl.getDepth())); //we add a Robot instance if our link has robots.txt file
+                        StackManager.getInstance().addRobot(new URLString(new URL(portionToChange + currentUrl.getHost() + "/"), currUrl.getDepth())); //we add a Robot instance if our link has robots.txt file
                     }
                     // current's match path is changed
                     String replacedStr = priorityStr.replace(portionToChange, Config.getInstance().rootDir);
@@ -324,7 +328,7 @@ public class PageCrawler extends Thread {
         // First of all verify if this file should be parsed or not
 
         String filePath = currUrl.getUrlString().getFile(); // get file path
-        if(!filePath.equals("/")) {
+        if (!filePath.equals("/")) {
             String fileName = filePath.split("/")[filePath.split("/").length - 1]; //extract last element from path
             String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1); //get the extension of this file
 
@@ -340,6 +344,7 @@ public class PageCrawler extends Thread {
          */
         String newContain = "";
         try {
+            // final link which should be added in stack
             String toAddInStack = "";
             try {
 
@@ -352,6 +357,10 @@ public class PageCrawler extends Thread {
                 while (matcher.find()) {
                     String baseStr = matcher.group();
 
+                    if (baseStr.contains(Config.getInstance().rootDir)) {
+                        continue;
+                    }
+
                     StringTokenizer token = new StringTokenizer(baseStr, "#?");//we want to use the part of the link until "?"
                     // Url made with relative path
                     String priorityStr = "";
@@ -361,15 +370,17 @@ public class PageCrawler extends Thread {
                     } else { // else we take the whole link
                         priorityStr = baseStr;
                     }
-                    //is used only that part which involve a link
-                    String changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?", "").trim();
-                    //is changed the old path with the new one which has as reference the file system
-                    newContain = newContain.replace(changedStr, Config.getInstance().rootDir + changedStr.substring(2));
 
-                    changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?\"\\/", "").trim();
+                    //is used everything after first /
+                    String changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?\"\\/", "").trim();
                     toAddInStack = baseUrl + changedStr;
                     //the new link is added in URLs stack from StackManager
                     StackManager.getInstance().PushURL(new URLString(new URL(toAddInStack), currUrl.getDepth() + 1));
+
+                    //is used only that part which involve a link
+                    changedStr = priorityStr.replaceAll("((href)|(src)) ?= ?\"", "").trim();
+                    //is changed the old path with the new one which has as reference the file system
+                    newContain = newContain.replace(changedStr, baseUrl.replace(currUrl.getUrlString().getProtocol() + "://", Config.getInstance().rootDir) + changedStr.substring(1));
 
                 }
             } catch (MalformedURLException e) {
@@ -408,11 +419,9 @@ public class PageCrawler extends Thread {
         boolean check_createDir;
         int i;
 
-        if(arrayFiles.size() == 0)
-        {
+        if (arrayFiles.size() == 0) {
             position = -1;
-        }
-        else {
+        } else {
             //Extract position for extension for check after if exists or not
             position = arrayFiles.get(arrayFiles.size() - 1).lastIndexOf('.');
         }
