@@ -53,9 +53,9 @@ public class Sitemap {
      * in the parent path
      */
 
-    private int getTabsNumber(String parent) {
+    private int getTabsNumber(String parent, String folderName) {
         int tabNum = 1; //only the root folder is displayed on the first level
-        for (int i = 0; i < parent.length(); i++) {
+        for (int i = parent.indexOf(folderName); i < parent.length(); i++) {
             if (parent.charAt(i) == '\\' || parent.charAt(i) == '/') { //Either Unix or Windows format
                 tabNum++;
             }
@@ -105,13 +105,13 @@ public class Sitemap {
      *                     of the Logger used to log the previous exception.
      */
 
-    private void listFiles(String startDir, FileWriter fileWriter) throws IOException {
+    private void listFiles(String startDir, String folderName, FileWriter fileWriter) throws IOException {
         Files.walk(Paths.get(startDir))
                 .filter(Files::isDirectory)
                 .forEach(filePath -> {
                     try {
                         if (!filePath.toString().equals(startDir)) {
-                            writeToFile(fileWriter, createTaber(getTabsNumber(filePath.getParent().toString()))
+                            writeToFile(fileWriter, createTaber(getTabsNumber(filePath.getParent().toString(), folderName))
                                     + filePath.getFileName() + "/\n");
                         } else {
                             writeToFile(fileWriter, filePath.getFileName() + "\n");
@@ -119,7 +119,7 @@ public class Sitemap {
 
                         if (!filePath.toString().equals(startDir)) {
                             listFilesInDirectory(filePath.toString(),
-                                    getTabsNumber(filePath.getParent().toString()) + 1, fileWriter);
+                                    getTabsNumber(filePath.getParent().toString(), folderName) + 1, fileWriter);
                         } else {
                             listFilesInDirectory(filePath.toString(), 1, fileWriter);
                         }
@@ -147,7 +147,7 @@ public class Sitemap {
         FileWriter fileWriter = new FileWriter(fileName.toString() + "_sitemap.txt");
         //creates a file with the following format: <root_directory>_sitemap.txt
 
-        listFiles(this.path, fileWriter);
+        listFiles(this.path, fileName.toString(), fileWriter);
 
         fileWriter.close();
 
