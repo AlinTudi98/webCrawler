@@ -3,10 +3,11 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-        ;
+        readArgs(args);
+        processCommand(args);
     }
-// webCrawler crawl -config=/home/alint/config.txt
-    private void readArgs(String[] args) {
+
+    private static void readArgs(String[] args) {
         String[] posParams = {
                 "-maxDepth=", "-dTypes=",
                 "-ignoreRobots", "-config=", "-maxSize=", "-rootDir=",
@@ -43,11 +44,11 @@ public class Main {
         }
     }
 
-    private Config loadConfig(String configPath) {
+    private static Config loadConfig(String configPath) {
         return Config.getInstance(configPath);
     }
 
-    private boolean processCommand(String[] args) {
+    private static boolean processCommand(String[] args) {
         String command = args[1];
 
         switch(command.toUpperCase()){
