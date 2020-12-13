@@ -93,7 +93,7 @@ public class Robot {
         }catch (Exception exception){
             try {
 
-                Logger.getInstance().log(LogCode.WARN, "[WARN] Robot: URL: \"" + url.toString() + "\" doesn't have robots.txt file.");
+                Logger.getInstance().log(LogCode.WARN, "Robot: URL: \"" + url.toString() + "\" doesn't have robots.txt file.");
 
             }catch(IOException e)
             {

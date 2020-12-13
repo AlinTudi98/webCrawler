@@ -1,4 +1,4 @@
-numThreads = 1
+numThreads = 50
 delay = 1
 rootDir = dir
 logLevel = 1

@@ -53,7 +53,7 @@ public class URLParser {
         try {
             Logger logger = Logger.getInstance();
             try {
-                logger.log(LogCode.INFO,"[INFO] URLParser: Successfully started URLParser class for file " + urlFile.getPath());
+                logger.log(LogCode.INFO,"URLParser: Successfully started URLParser class for file " + urlFile.getPath());
                 StackManager stackManager = StackManager.getInstance();
                 Scanner reader = new Scanner(urlFile);
 
@@ -66,13 +66,13 @@ public class URLParser {
                             URLString urlString = new URLString(url, 0);
                             stackManager.addRobot(urlString);
                             stackManager.PushURL(urlString);
-                            logger.log(LogCode.INFO, "[INFO] URLParser: Added URL: \"" + line + "\" to download stack.");
+                            logger.log(LogCode.INFO, "URLParser: Added URL: \"" + line + "\" to download stack.");
 
                         } catch (MalformedURLException e) {
-                            logger.log(LogCode.WARN, "[WARN] URLParser: MalformedURLException thrown for line: \"" + line + "\". Line has been ignored.");
+                            logger.log(LogCode.WARN, "URLParser: MalformedURLException thrown for line: \"" + line + "\". Line has been ignored.");
                         }
                     } else {
-                        logger.log(LogCode.WARN, "[WARN] URLParser: Ignored line: \"" + line + "\". Not a valid URL.");
+                        logger.log(LogCode.WARN, "URLParser: Ignored line: \"" + line + "\". Not a valid URL.");
                     }
 
                 }
@@ -80,7 +80,7 @@ public class URLParser {
 
             }
             catch (FileNotFoundException ee) {
-                logger.log(LogCode.FATAL,"[FATAL] URLParser: Could not open input file.");
+                logger.log(LogCode.FATAL,"URLParser: Could not open input file.");
             }
         }
         catch(IOException e)
@@ -102,7 +102,7 @@ public class URLParser {
     public void parse(String urlString){
         try {
             Logger logger = Logger.getInstance();
-            logger.log(LogCode.INFO,"[INFO] URLParser: Successfully started URLParser class for string " + urlString);
+            logger.log(LogCode.INFO,"URLParser: Successfully started URLParser class for string " + urlString);
             StackManager stackManager = StackManager.getInstance();
 
             for (String line : urlString.split(",")) {
@@ -112,12 +112,12 @@ public class URLParser {
                         URLString urlStr = new URLString(url, 0);
                         stackManager.addRobot(urlStr);
                         stackManager.PushURL(urlStr);
-                        logger.log(LogCode.INFO, "[INFO] URLParser: Added URL: \"" + line + "\" to download stack.");
+                        logger.log(LogCode.INFO, "URLParser: Added URL: \"" + line + "\" to download stack.");
                     } catch (MalformedURLException e) {
-                        logger.log(LogCode.WARN, "[WARN] URLParser: MalformedURLException thrown for string: \"" + line + "\". String has been ignored.");
+                        logger.log(LogCode.WARN, "URLParser: MalformedURLException thrown for string: \"" + line + "\". String has been ignored.");
                     }
                 } else {
-                    logger.log(LogCode.WARN, "[WARN] URLParser: Ignored string: \"" + line + "\". Not a valid URL.");
+                    logger.log(LogCode.WARN, "URLParser: Ignored string: \"" + line + "\". Not a valid URL.");
                 }
             }
         }

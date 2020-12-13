@@ -352,7 +352,7 @@ public class PageCrawler extends Thread{
 
                 }
             } catch (MalformedURLException e) {
-                Logger.getInstance().log(LogCode.WARN, "[WARN] PageCrawler: MalformedURLException thrown for line: \"" + toAddInStack + "\". Line has been ignored.");
+                Logger.getInstance().log(LogCode.WARN, "PageCrawler: MalformedURLException thrown for line: \"" + toAddInStack + "\". Line has been ignored.");
             }
         }catch(IOException e)
         {
