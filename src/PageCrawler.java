@@ -133,8 +133,8 @@ public class PageCrawler extends Thread {
                              * in the list of valid extensions, then the page
                              * will not be downloaded
                              */
-                            if (check_pageExtension == 0 && !pageExtension.equals("html") &&
-                                    !pageExtension.equals("htm") && !pageExtension.equals(pageName)) {
+                            if (check_pageExtension == 0 && !pageExtension.equals("html") && !pageExtension.equals("htm")
+                                    && !pageExtension.equals(pageName) && !pageExtension.equals("js") &&!pageExtension.equals("css")) {
 
                                 //Thrown exception because page extension is not valid
                                 throw new UnknownException("Page:" + urlString + " does not have a valid extension" +
@@ -409,7 +409,6 @@ public class PageCrawler extends Thread {
         int i;
 
         try {
-
             rootPath += '/' + this.currUrl.getUrlString().getHost();
             forCreate = new File(rootPath);
             if (!forCreate.exists()) {
@@ -422,9 +421,11 @@ public class PageCrawler extends Thread {
             if (arrayFiles.size() <= 0) {
                 position = -1;
             } else {
+
                 //Extract position for extension for check after if exists or not
                 position = arrayFiles.get(arrayFiles.size() - 1).lastIndexOf('.');
             }
+
             //Check if extension for page does not exist
             if (position < 0) {
 
@@ -432,8 +433,7 @@ public class PageCrawler extends Thread {
                 arrayFiles.add("index.html");
 
             }
-
-
+            
             for (i = 1; i < arrayFiles.size() - 1; i++) {
                 rootPath += '/' + arrayFiles.get(i);
                 forCreate = new File(rootPath);
