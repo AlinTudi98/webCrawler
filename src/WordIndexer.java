@@ -78,7 +78,7 @@ public class WordIndexer {
         String[] pathnames;
         pathnames = f.list();
 
-        Pattern pHtml = Pattern.compile(".*.html");
+        Pattern pHtml = Pattern.compile(".*.html?");
         Pattern pDirectory = Pattern.compile("^[^.]*$");
 
         if (pathnames != null){
@@ -91,9 +91,12 @@ public class WordIndexer {
                         searchFiles.add(newName);
                     }
                 }
-                if (m2.find()){
-                    String newPathname = root + "/" + pathname;
-                    index(newPathname);
+                else {
+                    File tmp = new File(root + "/" +pathname);
+                    if (tmp.isDirectory()) {
+                        String newPathname = root + "/" + pathname;
+                        index(newPathname);
+                    }
                 }
             }
         }
