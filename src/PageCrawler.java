@@ -299,7 +299,7 @@ public class PageCrawler extends Thread {
                     String replacedStr = priorityStr.replace(portionToChange, Config.getInstance().rootDir);
 
                     // the link is added to stack
-                    StackManager.getInstance().PushURL(new URLString(new URL(priorityStr), currUrl.getDepth()));
+                    StackManager.getInstance().PushURL(new URLString(new URL(priorityStr), currUrl.getDepth() + 1));
                     newContain = newContain.replace(baseStr, replacedStr);
                 }
             } catch (MalformedURLException e) {

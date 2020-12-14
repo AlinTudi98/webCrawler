@@ -60,6 +60,9 @@ public class StackManager {
 
         synchronized (lock) {
 
+            if(url.getDepth() > Config.getInstance().maxDepth)
+                return;
+
             boolean availability = true;
             if (!robotsList.isEmpty()) {
                 for ( Robot iterator : robotsList ) { //verify if the new link is not in disallowed list of a Robot
@@ -90,7 +93,7 @@ public class StackManager {
             }
             try {
                 if (availability) { // if url link is a valid one it will be added in stack
-                    Logger.getInstance().log(LogCode.INFO, "StackManager: Added URL: \"" + url + "\" to download stack.");
+                    Logger.getInstance().log(LogCode.INFO, "StackManager: Added URL: \"" + url.getUrlString().toString() + "\" to download stack.");
                     urlStack.push(url);
                 }
             } catch (IOException e) {
@@ -138,7 +141,7 @@ public class StackManager {
 
                 synchronized (lock) {
                     for ( Robot iterator : robotsList ) {
-                        if (iterator.getbaseUrlOfRobot().equals(url.getUrlString())) {
+                        if (iterator.getbaseUrlOfRobot().toString().equalsIgnoreCase(url.getUrlString().toString())) {
                             return;
                         }
                     }

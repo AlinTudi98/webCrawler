@@ -44,9 +44,9 @@ public class Logger {
     }
 
     public static Logger getInstance() throws IOException {
-        FileWriter fileWriter = new FileWriter("log.txt");
 
         if(loggerInstance == null) {
+            FileWriter fileWriter = new FileWriter("log.txt",true);
             loggerInstance = new Logger(4, fileWriter);
         }
 
@@ -57,7 +57,9 @@ public class Logger {
         //Helper function to prevent code duplication
         try {
             synchronized (lock) {
+
                 logFile.write(message);
+
             }
         } catch(IOException exp) {
             System.out.println("Logger has encountered an error while writing to file!\n");
