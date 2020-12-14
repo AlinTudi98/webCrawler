@@ -1,11 +1,21 @@
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
         readArgs(args);
-        processCommand(args);
+        try {
+            FileWriter fw = new FileWriter("log.txt");
+            Logger.getInstance(Config.getInstance().logLevel, fw);
+            processCommand(args);
+            fw.close();
+        }
+        catch(IOException e)
+        {
+            System.out.println("[Fatal] Could not get logger instance.\n");
+        }
     }
 
     private static void readArgs(String[] args) {
@@ -74,6 +84,15 @@ public class Main {
                     PageCrawler tmp = new PageCrawler(Config.getInstance().maxDepth,Config.getInstance().dSizeLimit * 1024);
                     tmp.start();
                     crawlerList.add(tmp);
+                }
+                for(PageCrawler iter: crawlerList){
+                    try{
+                    iter.join();
+                    }
+                    catch(InterruptedException e)
+                    {
+                        ;
+                    }
                 }
                 return true;
 
