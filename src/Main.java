@@ -11,9 +11,7 @@ public class Main {
             Logger.getInstance(Config.getInstance().logLevel, fw);
             processCommand(args);
             fw.close();
-        }
-        catch(IOException e)
-        {
+        } catch (IOException e) {
             System.out.println("[Fatal] Could not get logger instance.\n");
         }
     }
@@ -39,7 +37,7 @@ public class Main {
 
             if (arg.contains("-dTypes=")) {
                 String types = arg.split("=")[1];
-                config.dTypes = types.split(",");
+                config.dTypes = types.split(" ");
             }
 
             if (arg.contains("-ignoreRobots")) {
@@ -62,15 +60,15 @@ public class Main {
     private static boolean processCommand(String[] args) {
         String command = args[1];
 
-        switch(command.toLowerCase()){
+        switch (command.toLowerCase()) {
             case "crawl":
-                for(String arg: args){
-                    if(arg.contains("-dLink=")){
-                        String urlString = arg.substring(8,arg.length() - 1);
+                for (String arg : args) {
+                    if (arg.contains("-dLink=")) {
+                        String urlString = arg.substring(8, arg.length() - 1);
                         URLParser parser = new URLParser();
                         parser.parse(urlString);
                     }
-                    if(arg.contains("-dLinksFile=")){
+                    if (arg.contains("-dLinksFile=")) {
                         String filename = arg.substring(12);
                         URLParser parser = new URLParser();
                         File file = new File(filename);
@@ -79,18 +77,15 @@ public class Main {
                 }
 
                 ArrayList<PageCrawler> crawlerList = new ArrayList<PageCrawler>();
-                for(int i=0;i<Config.getInstance().numThreads;i++)
-                {
-                    PageCrawler tmp = new PageCrawler(Config.getInstance().maxDepth,Config.getInstance().dSizeLimit * 1024);
+                for (int i = 0; i < Config.getInstance().numThreads; i++) {
+                    PageCrawler tmp = new PageCrawler(Config.getInstance().maxDepth, Config.getInstance().dSizeLimit * 1024);
                     tmp.start();
                     crawlerList.add(tmp);
                 }
-                for(PageCrawler iter: crawlerList){
-                    try{
-                    iter.join();
-                    }
-                    catch(InterruptedException e)
-                    {
+                for (PageCrawler iter : crawlerList) {
+                    try {
+                        iter.join();
+                    } catch (InterruptedException e) {
                         ;
                     }
                 }
@@ -100,15 +95,11 @@ public class Main {
                 Sitemap map = new Sitemap(Config.getInstance().rootDir);
                 try {
                     map.getSiteMap();
-                }
-                catch(IOException e)
-                {
-                    try{
-                    Logger.getInstance().log(LogCode.FATAL,"Sitemap: Could not create sitemap.txt file.");
-                    return false;
-                    }
-                    catch(IOException f)
-                    {
+                } catch (IOException e) {
+                    try {
+                        Logger.getInstance().log(LogCode.FATAL, "Sitemap: Could not create sitemap.txt file.");
+                        return false;
+                    } catch (IOException f) {
                         System.out.println("[Fatal] Could not get logger instance.\n");
                         return false;
                     }
@@ -117,49 +108,42 @@ public class Main {
 
             case "search":
                 String wordsString = null;
-                for(String arg: args)
-                {
-                    if(arg.contains("-words="))
-                    {
+                for (String arg : args) {
+                    if (arg.contains("-words=")) {
                         wordsString = arg.substring(7);
-                        wordsString = wordsString.substring(1,wordsString.length()-1);
                     }
                 }
                 WordIndexer indexer = new WordIndexer();
-                if(wordsString == null) {
+                if (wordsString == null) {
                     try {
                         Logger.getInstance().log(LogCode.FATAL, "Empty words string");
                         return false;
-                    }
-                    catch(IOException e)
-                    {
+                    } catch (IOException e) {
                         System.out.println("[Fatal] Could not get logger instance.\n");
                         return false;
                     }
                 }
-                indexer.search(wordsString,Config.getInstance().rootDir);
+                indexer.search(wordsString, Config.getInstance().rootDir);
                 return true;
 
             case "list":
-                for(String type: Config.getInstance().dTypes) {
+                for (String type : Config.getInstance().dTypes) {
                     Filter filter = new Filter(type, Config.getInstance().dSizeLimit * 1024);
                     try {
                         filter.search(Config.getInstance().rootDir);
-                    }
-                    catch(IOException e)
-                    {
-                        try{
-                            Logger.getInstance().log(LogCode.FATAL,"Could not access target directory.");
+                    } catch (IOException e) {
+                        try {
+                            Logger.getInstance().log(LogCode.FATAL, "Could not access target directory.");
                             return false;
-                        }
-                        catch(IOException f){
+                        } catch (IOException f) {
                             System.out.println("[Fatal] Could not get logger instance.\n");
                             return false;
                         }
                     }
                 }
                 return true;
-            default: return false;
+            default:
+                return false;
         }
 
     }

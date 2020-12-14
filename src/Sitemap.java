@@ -24,6 +24,8 @@ public class Sitemap {
     private final String path;
 
     public Sitemap(String path) {
+        if (path.endsWith("/"))
+            path = path.substring(0, path.length() - 1);
         this.path = path;
     }
 
