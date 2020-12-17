@@ -58,13 +58,13 @@ public class Main {
     }
 
     private static boolean processCommand(String[] args) {
-        String command = args[1];
+        String command = args[0];
 
         switch (command.toLowerCase()) {
             case "crawl":
                 for (String arg : args) {
                     if (arg.contains("-dLink=")) {
-                        String urlString = arg.substring(8, arg.length() - 1);
+                        String urlString = arg.substring(7);
                         URLParser parser = new URLParser();
                         parser.parse(urlString);
                     }
@@ -89,6 +89,7 @@ public class Main {
                         ;
                     }
                 }
+                System.out.println("Descarcarea s-a finalizat cu succes!");
                 return true;
 
             case "sitemap":
