@@ -32,6 +32,7 @@ Aplicatia este un utilitar in linie de comanda si pune la dispozitie urmatoarele
 - **maxSize=**  dimensiunea maxima permisa, dimensiune specificata in KB
 - **dTypes=**  specificarea extensiilor permise pentru paginile descarcate
 - **config=**  calea catre fisierul de configurare
+- **words=** cuvintele folosite in cadrul procesului de cautare
 
 ### Exemplu fisier de configurare:
 - **numThreads** = 1
