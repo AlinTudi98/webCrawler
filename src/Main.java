@@ -21,14 +21,15 @@ public class Main {
                 "-maxDepth=", "-dTypes=",
                 "-ignoreRobots", "-config=", "-maxSize=", "-rootDir=",
         };
-
-        Config config = loadConfig("config.txt");
+        Config config = null;
 
         for (String iter : args) {
             if (iter.contains("-config=")) {
                 config = loadConfig(iter.substring(8));
             }
         }
+        if(config == null)
+            config = loadConfig("config.txt");
 
         for (String arg : args) {
             if (arg.contains("-maxDepth=")) {
